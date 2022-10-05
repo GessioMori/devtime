@@ -1,6 +1,7 @@
 import {
   AppShell,
   Burger,
+  Group,
   Header,
   MediaQuery,
   Navbar,
@@ -8,8 +9,16 @@ import {
   Text,
   useMantineTheme
 } from '@mantine/core'
+import {
+  IconChartBar,
+  IconCodeCircle2,
+  IconHome,
+  IconListCheck,
+  IconTerminal2
+} from '@tabler/icons'
 import Link from 'next/link'
 import { ReactNode, useState } from 'react'
+import { UserCard } from './UserCard'
 
 interface LayoutProps {
   children: ReactNode
@@ -29,19 +38,88 @@ export default function Layout({ children }: LayoutProps) {
           hidden={!opened}
           width={{ sm: 200, lg: 300 }}
         >
-          <Link href={'/dashboard'}>
-            <NavLink label="Dashboard" onClick={() => setOpened((o) => !o)} />
-          </Link>
-
-          <Link href={'/dashboard/projects'}>
-            <NavLink label="Projects" onClick={() => setOpened((o) => !o)} />
-          </Link>
+          <Navbar.Section grow>
+            <Link href={'/dashboard'}>
+              <NavLink
+                icon={<IconHome />}
+                label="Home"
+                onClick={() => setOpened((o) => !o)}
+              />
+            </Link>
+            <NavLink
+              icon={<IconListCheck />}
+              label="Tasks"
+              defaultOpened={true}
+            >
+              <Link href={'/dashboard/projects'}>
+                <NavLink
+                  label="Start a new task"
+                  onClick={() => setOpened((o) => !o)}
+                />
+              </Link>
+              <Link href={'/dashboard/projects'}>
+                <NavLink
+                  label="Manage my tasks"
+                  onClick={() => setOpened((o) => !o)}
+                />
+              </Link>
+            </NavLink>
+            <NavLink
+              icon={<IconTerminal2 />}
+              label="Projects"
+              defaultOpened={true}
+            >
+              <Link href={'/dashboard/projects'}>
+                <NavLink
+                  label="Create new project"
+                  onClick={() => setOpened((o) => !o)}
+                />
+              </Link>
+              <Link href={'/dashboard/projects'}>
+                <NavLink
+                  label="Manage projects"
+                  onClick={() => setOpened((o) => !o)}
+                />
+              </Link>
+              <Link href={'/dashboard/projects'}>
+                <NavLink
+                  label="Project invites"
+                  onClick={() => setOpened((o) => !o)}
+                />
+              </Link>
+            </NavLink>
+            <NavLink
+              icon={<IconChartBar />}
+              label="Statistics"
+              defaultOpened={true}
+            >
+              <Link href={'/dashboard/projects'}>
+                <NavLink label="Tasks" onClick={() => setOpened((o) => !o)} />
+              </Link>
+              <Link href={'/dashboard/projects'}>
+                <NavLink
+                  label="Projects"
+                  onClick={() => setOpened((o) => !o)}
+                />
+              </Link>
+            </NavLink>
+          </Navbar.Section>
+          <Navbar.Section>
+            <MediaQuery largerThan={'sm'} styles={{ display: 'none' }}>
+              <UserCard direction="right" />
+            </MediaQuery>
+          </Navbar.Section>
         </Navbar>
       }
       header={
         <Header height={70} p="md">
           <div
-            style={{ display: 'flex', alignItems: 'center', height: '100%' }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              height: '100%',
+              justifyContent: 'space-between'
+            }}
           >
             <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
               <Burger
@@ -52,8 +130,15 @@ export default function Layout({ children }: LayoutProps) {
                 mr="xl"
               />
             </MediaQuery>
-
-            <Text>Application header</Text>
+            <Group spacing={'sm'}>
+              <IconCodeCircle2 size={40} color={theme.colors.cyan[4]} />
+              <Text color={'cyan.2'} size={32} weight={800}>
+                DevTime
+              </Text>
+            </Group>
+            <MediaQuery smallerThan={'sm'} styles={{ display: 'none' }}>
+              <UserCard direction="down" />
+            </MediaQuery>
           </div>
         </Header>
       }
