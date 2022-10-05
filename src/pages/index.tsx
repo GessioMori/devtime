@@ -1,8 +1,9 @@
-import { Text } from '@nextui-org/react'
-import type { NextPage } from 'next'
+import { Button, Group } from '@mantine/core'
 
-const Home: NextPage = () => {
-  return <Text h1>HOME</Text>
+export default function IndexPage() {
+  return (
+    <Group mt={50} position="center">
+      <Button size="xl">Welcome to Mantine!</Button>
+    </Group>
+  )
 }
-
-export default Home
