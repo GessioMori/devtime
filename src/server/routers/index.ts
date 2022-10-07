@@ -1,7 +1,10 @@
 import { initTRPC } from '@trpc/server'
+import { format } from 'date-fns'
 import { z } from 'zod'
 
 export const t = initTRPC.create()
+
+const dateFormat = 'dd/MM/yy - HH:mm'
 
 export const appRouter = t.router({
   hello: t.procedure
@@ -25,16 +28,16 @@ export const appRouter = t.router({
           title: 'task1',
           description: 'description1',
           githubCommitUrl: 'github.com',
-          startTime: new Date(1665143000),
-          endTime: new Date()
+          startTime: format(new Date(1665143000000), dateFormat),
+          endTime: format(new Date(1665146000000), dateFormat)
         },
         {
           id: Math.floor(Math.random() * 1000),
           title: 'task2',
           description: 'description2',
           githubCommitUrl: 'github.com',
-          startTime: new Date(1665143000),
-          endTime: new Date()
+          startTime: format(new Date(1665148000000), dateFormat),
+          endTime: format(new Date(1665150000000), dateFormat)
         }
       ]
     }
