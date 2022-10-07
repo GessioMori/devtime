@@ -57,7 +57,7 @@ export default function Layout({ children }: LayoutProps) {
                   onClick={() => setOpened((o) => !o)}
                 />
               </Link>
-              <Link href={'/dashboard/projects'}>
+              <Link href={'/dashboard/tasks'}>
                 <NavLink
                   label="Manage my tasks"
                   onClick={() => setOpened((o) => !o)}
