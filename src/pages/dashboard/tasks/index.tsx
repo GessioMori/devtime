@@ -1,63 +1,85 @@
 import Layout from '@/components/Layout'
 import { NextPageWithLayout } from '@/pages/_app'
-import { trpc } from '@/utils/trpc'
 import {
   ActionIcon,
+  Center,
   Container,
-  HoverCard,
+  Loader,
   Menu,
+  Popover,
   Table,
   Text
 } from '@mantine/core'
-import { IconDots } from '@tabler/icons'
+import {
+  IconBrandGithub,
+  IconCircleX,
+  IconDots,
+  IconPencil,
+  IconTerminal2
+} from '@tabler/icons'
 import type { ReactElement } from 'react'
 
 const Tasks: NextPageWithLayout = () => {
-  const tasks = trpc.tasks.useQuery()
+  const tasks = {
+    data: {
+      tasks: [
+        { id: '1', title: 'A', description: 'B', startTime: 'C', endTime: 'D' }
+      ]
+    },
+    isLoading: false
+  }
 
-  if (!tasks.data) {
-    return <div>Loading tasks...</div>
+  if (tasks.isLoading || !tasks.data) {
+    return (
+      <Center mt={'lg'}>
+        <Loader color="cyan" size="xl" />
+      </Center>
+    )
   }
 
   const rows = tasks.data.tasks.map((task) => (
-    <HoverCard key={task.id} closeDelay={0} position={'bottom-start'}>
-      <HoverCard.Target>
-        <tr>
-          <td>{task.title}</td>
-          <td>{task.startTime.toString()}</td>
-          <td>{task.endTime ? task.endTime.toString() : '-'}</td>
-          <td>
-            <Menu position={'bottom-end'}>
-              <Menu.Target>
-                <ActionIcon variant={'outline'}>
-                  <IconDots />
-                </ActionIcon>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Item>Edit task</Menu.Item>
-                <Menu.Item>Go to project</Menu.Item>
-                <Menu.Item>See github commit</Menu.Item>
-                <Menu.Item>Delete task</Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
-          </td>
-        </tr>
-      </HoverCard.Target>
-      <HoverCard.Dropdown>
-        {task.description && (
-          <>
+    <tr key={task.id}>
+      <td style={{ cursor: 'pointer' }}>
+        <Popover position={'bottom-start'}>
+          <Popover.Target>
+            <Text>{task.title}</Text>
+          </Popover.Target>
+          <Popover.Dropdown>
+            {task.description && (
+              <>
+                <Text>
+                  <span style={{ fontWeight: 'bold' }}>Description: </span>
+                  {task.description}
+                </Text>
+              </>
+            )}
             <Text>
-              <span style={{ fontWeight: 'bold' }}>Description: </span>
-              {task.description}
+              <span style={{ fontWeight: 'bold' }}>Status: </span>
+              Paused
             </Text>
-          </>
-        )}
-        <Text>
-          <span style={{ fontWeight: 'bold' }}>Status: </span>
-          Paused
-        </Text>
-      </HoverCard.Dropdown>
-    </HoverCard>
+          </Popover.Dropdown>
+        </Popover>
+      </td>
+      <td>{task.startTime}</td>
+      <td>{task.endTime ? task.endTime : '-'}</td>
+      <td>
+        <Menu position={'bottom-end'}>
+          <Menu.Target>
+            <ActionIcon variant={'outline'}>
+              <IconDots />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item icon={<IconPencil />}>Edit task</Menu.Item>
+            <Menu.Item icon={<IconTerminal2 />}>Go to project</Menu.Item>
+            <Menu.Item icon={<IconBrandGithub />}>See github commit</Menu.Item>
+            <Menu.Item color={'red.5'} icon={<IconCircleX />}>
+              Delete task
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      </td>
+    </tr>
   ))
 
   return (
