@@ -9,7 +9,7 @@ export const getServerSession: GetServerSideProps = async (context) => {
     authOptions
   )
 
-  if (!session) {
+  if (!session || !session.user) {
     return {
       redirect: {
         destination: '/',
@@ -17,6 +17,8 @@ export const getServerSession: GetServerSideProps = async (context) => {
       }
     }
   }
+
+  session.user.githubId = 'dsadas'
 
   return {
     props: {

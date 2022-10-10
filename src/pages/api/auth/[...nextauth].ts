@@ -4,6 +4,13 @@ import { NextAuthOptions } from 'next-auth'
 import NextAuth from 'next-auth/next'
 import GithubProvider from 'next-auth/providers/github'
 
+interface Repository {
+  id: string
+  url: string
+  language: string
+  name: string
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
@@ -17,6 +24,27 @@ export const authOptions: NextAuthOptions = {
     async session({ session, user }) {
       if (session.user) {
         session.user.id = user.id
+        if (!session.user.githubId) {
+          const account = await prisma.account.findFirst({
+            where: { userId: session.user.id }
+          })
+          session.user.githubId = account?.providerAccountId
+        }
+        const repos = await fetch(
+          `https://api.github.com/user/${session.user.githubId}/repos`
+        )
+          .then((res) => res.json())
+          .then((repos: Repository[]) =>
+            repos.map((repo) => {
+              return {
+                id: repo.id,
+                url: repo.url,
+                language: repo.language,
+                name: repo.name
+              }
+            })
+          )
+        session.user.repositories = repos
       }
       return session
     }

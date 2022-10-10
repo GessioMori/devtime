@@ -1,3 +1,4 @@
+import { trpc } from '@/utils/trpc'
 import {
   AppShell,
   Burger,
@@ -6,8 +7,7 @@ import {
   MediaQuery,
   Navbar,
   NavLink,
-  Text,
-  useMantineTheme
+  Text
 } from '@mantine/core'
 import {
   IconChartBar,
@@ -26,26 +26,46 @@ interface LayoutProps {
   children: ReactNode
 }
 
-export default function Layout({ children }: LayoutProps) {
-  const theme = useMantineTheme()
-  const [opened, setOpened] = useState(false)
-  const router = useRouter()
+interface user {
+  name: string | null | undefined
+  email: string | null | undefined
+  image: string | null | undefined
+}
 
-  const session = useSession({
+export default function Layout({ children }: LayoutProps) {
+  const router = useRouter()
+  const [opened, setOpened] = useState(false)
+  const { data, status } = useSession({
     required: true,
     onUnauthenticated() {
       router.push('/')
     }
   })
 
-  if (session.status === 'loading') {
-    return <div></div>
+  const { data: userData } = trpc.auth.getUserDetails.useQuery(undefined, {
+    onError() {
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false
+        }
+      }
+    }
+  })
+
+  /*
+  if (githubrepos.status === 'success') {
+    console.log(githubrepos.data)
+  } */
+
+  const user: user = {
+    name: userData?.user.name,
+    email: userData?.user.email,
+    image: userData?.user.image
   }
 
-  const user = {
-    username: session.data.user?.name,
-    email: session.data.user?.email,
-    imageUrl: session.data.user?.image
+  if (status === 'loading') {
+    return <div></div>
   }
 
   return (
@@ -129,8 +149,8 @@ export default function Layout({ children }: LayoutProps) {
             <MediaQuery largerThan={'sm'} styles={{ display: 'none' }}>
               <UserCard
                 direction="right"
-                username={user.username}
-                imageUrl={user.imageUrl}
+                username={user.name}
+                imageUrl={user.image}
                 email={user.email}
               />
             </MediaQuery>
@@ -152,12 +172,12 @@ export default function Layout({ children }: LayoutProps) {
                 opened={opened}
                 onClick={() => setOpened((o) => !o)}
                 size="sm"
-                color={theme.colors.gray[6]}
+                color="#868e96"
                 mr="xl"
               />
             </MediaQuery>
             <Group spacing={'sm'}>
-              <IconCodeCircle2 size={40} color={theme.colors.cyan[4]} />
+              <IconCodeCircle2 size={40} color="#3bc9db" />
               <Text color={'cyan.2'} size={32} weight={800}>
                 DevTime
               </Text>
@@ -165,8 +185,8 @@ export default function Layout({ children }: LayoutProps) {
             <MediaQuery smallerThan={'sm'} styles={{ display: 'none' }}>
               <UserCard
                 direction="down"
-                username={user.username}
-                imageUrl={user.imageUrl}
+                username={user.name}
+                imageUrl={user.image}
                 email={user.email}
               />
             </MediaQuery>

@@ -4,21 +4,10 @@ import { trpc } from '@/utils/trpc'
 import { Button, Stack, TextInput, Title } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { IconApps } from '@tabler/icons'
+import { useSession } from 'next-auth/react'
 import { ReactElement } from 'react'
 
-interface newTask {
-  title: string
-  description?: string
-}
-
-interface errors {
-  title: string | undefined
-  description: string | undefined
-}
-
 const NewTask: NextPageWithLayout = () => {
-  const newTaskMutation = trpc.tasks.createTask.useMutation()
-
   const form = useForm({
     initialValues: {
       title: '',
@@ -31,11 +20,19 @@ const NewTask: NextPageWithLayout = () => {
     }
   })
 
+  const { data } = useSession()
+
+  console.log(data?.user?.repositories)
+
+  const newTaskMutation = trpc.tasks.createTask.useMutation()
+
   async function createNewTask() {
-    await newTaskMutation.mutateAsync({
-      title: form.values.title,
-      description: form.values.description
-    })
+    await newTaskMutation
+      .mutateAsync({
+        title: form.values.title,
+        description: form.values.description
+      })
+      .then(() => form.reset())
   }
 
   return (
