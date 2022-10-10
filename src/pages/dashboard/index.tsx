@@ -1,6 +1,4 @@
-import { getServerSession } from '@/utils/getSession'
 import { Text } from '@mantine/core'
-import { GetServerSideProps } from 'next'
 import { Session } from 'next-auth'
 import type { ReactElement } from 'react'
 import Layout from '../../components/Layout'
@@ -18,6 +16,6 @@ Dashboard.getLayout = function getLayout(page: ReactElement) {
   return <Layout>{page}</Layout>
 }
 
-export const getServerSideProps: GetServerSideProps = getServerSession
+//export const getServerSideProps: GetServerSideProps = getServerSession
 
 export default Dashboard

@@ -16,7 +16,9 @@ import {
   IconListCheck,
   IconTerminal2
 } from '@tabler/icons'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { ReactNode, useState } from 'react'
 import { UserCard } from './UserCard'
 
@@ -27,6 +29,25 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const theme = useMantineTheme()
   const [opened, setOpened] = useState(false)
+  const router = useRouter()
+
+  const session = useSession({
+    required: true,
+    onUnauthenticated() {
+      router.push('/')
+    }
+  })
+
+  if (session.status === 'loading') {
+    return <div></div>
+  }
+
+  const user = {
+    username: session.data.user?.name,
+    email: session.data.user?.email,
+    imageUrl: session.data.user?.image
+  }
+
   return (
     <AppShell
       navbarOffsetBreakpoint="sm"
@@ -106,7 +127,12 @@ export default function Layout({ children }: LayoutProps) {
           </Navbar.Section>
           <Navbar.Section>
             <MediaQuery largerThan={'sm'} styles={{ display: 'none' }}>
-              <UserCard direction="right" />
+              <UserCard
+                direction="right"
+                username={user.username}
+                imageUrl={user.imageUrl}
+                email={user.email}
+              />
             </MediaQuery>
           </Navbar.Section>
         </Navbar>
@@ -137,7 +163,12 @@ export default function Layout({ children }: LayoutProps) {
               </Text>
             </Group>
             <MediaQuery smallerThan={'sm'} styles={{ display: 'none' }}>
-              <UserCard direction="down" />
+              <UserCard
+                direction="down"
+                username={user.username}
+                imageUrl={user.imageUrl}
+                email={user.email}
+              />
             </MediaQuery>
           </div>
         </Header>

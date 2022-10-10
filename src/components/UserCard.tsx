@@ -19,9 +19,18 @@ import { signOut } from 'next-auth/react'
 interface UserCardProps {
   direction: 'right' | 'down'
   className?: string
+  username: string | null | undefined
+  email: string | null | undefined
+  imageUrl: string | null | undefined
 }
 
-export function UserCard({ className, direction }: UserCardProps) {
+export function UserCard({
+  className,
+  direction,
+  email,
+  imageUrl,
+  username
+}: UserCardProps) {
   {
     const theme = useMantineTheme()
     return (
@@ -38,16 +47,13 @@ export function UserCard({ className, direction }: UserCardProps) {
                 }}
               >
                 <Group>
-                  <Avatar
-                    src="https://avatars.githubusercontent.com/u/58918025?v=4"
-                    radius="xl"
-                  />
+                  <Avatar src={imageUrl} radius="xl" />
                   <Box sx={{ flex: 1 }}>
                     <Text size="sm" weight={500}>
-                      Gessio Mori
+                      {username}
                     </Text>
                     <Text color="dimmed" size="xs">
-                      gessiomorin@gmail.com
+                      {email}
                     </Text>
                   </Box>
                   {direction === 'right' ? (
