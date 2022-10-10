@@ -14,6 +14,7 @@ import {
   IconSettings,
   IconUserCircle
 } from '@tabler/icons'
+import { signOut } from 'next-auth/react'
 
 interface UserCardProps {
   direction: 'right' | 'down'
@@ -61,7 +62,12 @@ export function UserCard({ className, direction }: UserCardProps) {
           <Menu.Dropdown>
             <Menu.Item icon={<IconUserCircle size={14} />}>Account</Menu.Item>
             <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item>
-            <Menu.Item icon={<IconLogout size={14} />}>Logout</Menu.Item>
+            <Menu.Item
+              icon={<IconLogout size={14} />}
+              onClick={() => signOut()}
+            >
+              Logout
+            </Menu.Item>
           </Menu.Dropdown>
         </Menu>
       </Box>

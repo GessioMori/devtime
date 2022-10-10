@@ -1,5 +1,6 @@
 import Layout from '@/components/Layout'
 import { NextPageWithLayout } from '@/pages/_app'
+import { getServerSession } from '@/utils/getSession'
 import {
   ActionIcon,
   Center,
@@ -17,6 +18,8 @@ import {
   IconPencil,
   IconTerminal2
 } from '@tabler/icons'
+import { GetServerSideProps } from 'next'
+
 import type { ReactElement } from 'react'
 
 const Tasks: NextPageWithLayout = () => {
@@ -110,5 +113,7 @@ const Tasks: NextPageWithLayout = () => {
 Tasks.getLayout = function getLayout(page: ReactElement) {
   return <Layout>{page}</Layout>
 }
+
+export const getServerSideProps: GetServerSideProps = getServerSession
 
 export default Tasks

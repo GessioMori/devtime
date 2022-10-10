@@ -1,8 +1,7 @@
 import { MantineProvider } from '@mantine/core'
 import { NextPage } from 'next'
-import { Session } from 'next-auth'
-import { getSession, SessionProvider } from 'next-auth/react'
-import { AppProps, AppType } from 'next/app'
+import { SessionProvider } from 'next-auth/react'
+import { AppProps } from 'next/app'
 import Head from 'next/head'
 import { ReactElement, ReactNode } from 'react'
 import { trpc } from '../utils/trpc'
@@ -14,23 +13,6 @@ export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
 type AppPropsWithLayoutAndContext = AppProps & {
   Component: NextPageWithLayout
   pageProps: any
-}
-
-const MyApp: AppType<{ session: Session | null }> = ({
-  Component,
-  pageProps
-}) => {
-  return (
-    <SessionProvider session={pageProps.session}>
-      <Component {...pageProps} />
-    </SessionProvider>
-  )
-}
-
-MyApp.getInitialProps = async ({ ctx }) => {
-  return {
-    session: await getSession(ctx)
-  }
 }
 
 function App({ Component, pageProps }: AppPropsWithLayoutAndContext) {
@@ -63,4 +45,4 @@ function App({ Component, pageProps }: AppPropsWithLayoutAndContext) {
   )
 }
 
-export default trpc.withTRPC(MyApp)
+export default trpc.withTRPC(App)
