@@ -10,6 +10,4 @@ Projects.getLayout = function getLayout(page: ReactElement) {
   return <Layout>{page}</Layout>
 }
 
-//export const getServerSideProps: GetServerSideProps = getServerSession
-
 export default Projects

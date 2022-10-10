@@ -72,7 +72,7 @@ export default function Layout({ children }: LayoutProps) {
               label="Tasks"
               defaultOpened={true}
             >
-              <Link href={'/dashboard/projects'}>
+              <Link href={'/dashboard/tasks/new'}>
                 <NavLink
                   label="Start a new task"
                   onClick={() => setOpened((o) => !o)}
