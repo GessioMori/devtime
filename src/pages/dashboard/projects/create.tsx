@@ -15,9 +15,9 @@ interface CreateProjectProps {
 const CreateProject: NextPageWithLayout = () => {
   const [showNotification, setShowNotification] = useState<
     'success' | 'error' | undefined
-  >('success')
+  >(undefined)
 
-  const { data, isLoading } = trpc.github.getUserRepositories.useQuery()
+  const { data } = trpc.github.getUserRepositories.useQuery()
   const createProjectMutation = trpc.projects.createProject.useMutation()
 
   const form = useForm({

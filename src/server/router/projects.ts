@@ -26,5 +26,41 @@ export const projectsRouter = (t: T) =>
           }
         })
         return newProject
+      }),
+    listProjects: t.procedure.query(async ({ ctx }) => {
+      if (!ctx.session || !ctx.session.user || !ctx.session.user.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const ownProjects = await ctx.prisma.project.findMany({
+        where: {
+          ownerId: ctx.session.user.id
+        }
+      })
+
+      return ownProjects
+    }),
+    deleteProject: t.procedure
+      .input(z.string().cuid())
+      .mutation(async ({ ctx, input: projectId }) => {
+        if (!ctx.session || !ctx.session.user || !ctx.session.user.id) {
+          throw new TRPCError({ code: 'UNAUTHORIZED' })
+        }
+        const project = await ctx.prisma.project.findUnique({
+          where: { id: projectId }
+        })
+        if (!project) {
+          throw new TRPCError({ code: 'NOT_FOUND' })
+        } else if (project.ownerId !== ctx.session.user.id) {
+          throw new TRPCError({ code: 'FORBIDDEN' })
+        }
+
+        await ctx.prisma.project.delete({
+          where: {
+            id: projectId
+          }
+        })
+
+        return true
       })
   })

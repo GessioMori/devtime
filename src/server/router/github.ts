@@ -6,6 +6,7 @@ interface Repository {
   url: string
   language: string
   name: string
+  svn_url: string
 }
 
 export const githubRouter = (t: T) =>
@@ -25,7 +26,7 @@ export const githubRouter = (t: T) =>
           repos.map((repo) => {
             return {
               id: repo.id,
-              url: repo.url,
+              url: repo.svn_url,
               language: repo.language,
               name: repo.name
             }
