@@ -1,6 +1,5 @@
 import { initTRPC } from '@trpc/server'
 import { ZodError } from 'zod'
-
 import { authRouter } from './auth'
 import { Context } from './context'
 import { githubRouter } from './github'

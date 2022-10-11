@@ -14,11 +14,13 @@ import {
   Text
 } from '@mantine/core'
 import {
+  IconArrowBack,
   IconBrandGithub,
   IconCircleX,
   IconDots,
   IconPencil,
-  IconTerminal2
+  IconTerminal2,
+  IconTrash
 } from '@tabler/icons'
 
 import { ReactElement, useState } from 'react'
@@ -93,12 +95,12 @@ const ListProjectsPage: NextPageWithLayout = () => {
       >
         <Stack>
           <Text inline>
-            Are you sure you want to delete{' '}
+            Are you sure you want to delete &quot;{' '}
             {projectToDelete &&
               (projects?.filter((project) => project.id === projectToDelete)[0]
                 ?.title ||
                 '')}
-            ?
+            &quot; ?
           </Text>
           <Text color={'dimmed'} inline>
             (This action can not be undone)
@@ -106,16 +108,18 @@ const ListProjectsPage: NextPageWithLayout = () => {
           <Stack spacing={'xs'}>
             <Button
               color={'red'}
-              variant="outline"
+              variant="light"
               fullWidth
               loading={deleteProjectMutation.status === 'loading'}
               onClick={() => deleteProject(projectToDelete)}
+              leftIcon={<IconTrash />}
             >
               Delete
             </Button>
             <Button
-              variant="outline"
+              variant="light"
               onClick={() => setProjectToDelete('')}
+              leftIcon={<IconArrowBack />}
               fullWidth
             >
               Cancel

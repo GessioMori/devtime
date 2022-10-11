@@ -1,8 +1,8 @@
+import { NextPageWithLayout } from '@/pages/_app'
 import { Text } from '@mantine/core'
 import { Session } from 'next-auth'
 import type { ReactElement } from 'react'
 import Layout from '../../components/Layout'
-import { NextPageWithLayout } from '../_app'
 
 interface DashboardProps {
   session: Session

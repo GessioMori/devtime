@@ -1,11 +1,11 @@
 import { defaultTheme } from '@/styles/theme'
+import { trpc } from '@/utils/trpc'
 import { MantineProvider } from '@mantine/core'
 import { NextPage } from 'next'
 import { SessionProvider } from 'next-auth/react'
 import { AppProps } from 'next/app'
 import Head from 'next/head'
 import { ReactElement, ReactNode } from 'react'
-import { trpc } from '../utils/trpc'
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode
