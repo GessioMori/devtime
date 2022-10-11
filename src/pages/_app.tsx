@@ -1,3 +1,4 @@
+import { defaultTheme } from '@/styles/theme'
 import { MantineProvider } from '@mantine/core'
 import { NextPage } from 'next'
 import { SessionProvider } from 'next-auth/react'
@@ -27,17 +28,7 @@ function App({ Component, pageProps }: AppPropsWithLayoutAndContext) {
         />
       </Head>
       <SessionProvider session={pageProps.session}>
-        <MantineProvider
-          withGlobalStyles
-          withNormalizeCSS
-          theme={{
-            colorScheme: 'dark',
-            fontFamily: 'Roboto, sans-serif',
-            headings: {
-              fontFamily: 'Roboto, sans-serif'
-            }
-          }}
-        >
+        <MantineProvider withGlobalStyles withNormalizeCSS theme={defaultTheme}>
           {getLayout(<Component {...pageProps} />)}
         </MantineProvider>
       </SessionProvider>
