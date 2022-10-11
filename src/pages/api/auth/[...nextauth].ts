@@ -22,6 +22,7 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async session({ session, user }) {
+      console.log('___________________ NEW SESSION REQUEST _________________')
       if (session.user) {
         session.user.id = user.id
         const account = await prisma.account.findFirst({

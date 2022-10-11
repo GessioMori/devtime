@@ -1,4 +1,3 @@
-import { trpc } from '@/utils/trpc'
 import {
   AppShell,
   Burger,
@@ -42,30 +41,14 @@ export default function Layout({ children }: LayoutProps) {
     }
   })
 
-  const { data: userData } = trpc.auth.getUserDetails.useQuery(undefined, {
-    onError() {
-      return {
-        redirect: {
-          destination: '/',
-          permanent: false
-        }
-      }
-    }
-  })
-
-  /*
-  if (githubrepos.status === 'success') {
-    console.log(githubrepos.data)
-  } */
-
-  const user: user = {
-    name: userData?.user.name,
-    email: userData?.user.email,
-    image: userData?.user.image
-  }
-
   if (status === 'loading') {
     return <div></div>
+  }
+
+  const user: user = {
+    name: data?.user?.name,
+    email: data?.user?.email,
+    image: data?.user?.image
   }
 
   return (
@@ -110,7 +93,7 @@ export default function Layout({ children }: LayoutProps) {
               label="Projects"
               defaultOpened={true}
             >
-              <Link href={'/dashboard/projects'}>
+              <Link href={'/dashboard/projects/create'}>
                 <NavLink
                   label="Create new project"
                   onClick={() => setOpened((o) => !o)}
