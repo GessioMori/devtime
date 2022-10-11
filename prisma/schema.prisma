@@ -19,6 +19,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   tasks         Tasks[]
+  ownProjects   Project[]
 }
 
 model Session {
@@ -54,6 +55,16 @@ model Tasks {
   description String?
   startTime   DateTime
   endTime     DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Project {
+  id            String   @id @default(cuid())
+  ownerId       String
+  title         String
+  githubRepoUrl String
+  description   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }

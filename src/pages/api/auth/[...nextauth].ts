@@ -24,13 +24,11 @@ export const authOptions: NextAuthOptions = {
     async session({ session, user }) {
       if (session.user) {
         session.user.id = user.id
-        if (!session.user.githubId) {
-          const account = await prisma.account.findFirst({
-            where: { userId: session.user.id }
-          })
-          session.user.githubId = account?.providerAccountId
-        }
-        const repos = await fetch(
+        const account = await prisma.account.findFirst({
+          where: { userId: session.user.id }
+        })
+        session.user.githubId = account?.providerAccountId
+        /* const repos = await fetch(
           `https://api.github.com/user/${session.user.githubId}/repos`
         )
           .then((res) => res.json())
@@ -44,8 +42,9 @@ export const authOptions: NextAuthOptions = {
               }
             })
           )
-        session.user.repositories = repos
+        session.user.repositories = repos */
       }
+
       return session
     }
   }

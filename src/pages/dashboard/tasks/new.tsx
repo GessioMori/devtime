@@ -4,7 +4,6 @@ import { trpc } from '@/utils/trpc'
 import { Button, Stack, TextInput, Title } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { IconApps } from '@tabler/icons'
-import { useSession } from 'next-auth/react'
 import { ReactElement } from 'react'
 
 const NewTask: NextPageWithLayout = () => {
@@ -19,10 +18,6 @@ const NewTask: NextPageWithLayout = () => {
         value.length < 10 ? 'Name must have at least 10 letters' : null
     }
   })
-
-  const { data } = useSession()
-
-  console.log(data?.user?.repositories)
 
   const newTaskMutation = trpc.tasks.createTask.useMutation()
 
