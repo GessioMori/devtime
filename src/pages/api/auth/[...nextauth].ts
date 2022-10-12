@@ -10,7 +10,16 @@ export const authOptions: NextAuthOptions = {
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      profile(profile, _) {
+        return {
+          id: profile.id.toString(),
+          name: profile.name,
+          email: profile.email,
+          image: profile.avatar_url,
+          githubId: profile.id.toString()
+        }
+      }
     })
   ],
   callbacks: {
@@ -18,12 +27,8 @@ export const authOptions: NextAuthOptions = {
       console.log('___________________ NEW SESSION REQUEST _________________')
       if (session.user) {
         session.user.id = user.id
-        const account = await prisma.account.findFirst({
-          where: { userId: session.user.id }
-        })
-        session.user.githubId = account?.providerAccountId
+        session.user.githubId = user.githubId
       }
-
       return session
     }
   }

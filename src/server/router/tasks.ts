@@ -15,7 +15,7 @@ export const tasksRouter = (t: T) =>
         if (!ctx.session) {
           throw new TRPCError({ code: 'UNAUTHORIZED' })
         }
-        const newTask = await ctx.prisma.tasks.create({
+        const newTask = await ctx.prisma.task.create({
           data: {
             title: input.title,
             description: input.description,

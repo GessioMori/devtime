@@ -2,15 +2,10 @@ import Layout from '@/components/Layout'
 import { NotificationBox } from '@/components/NotificationBox'
 import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
-import { Repository } from '@/utils/types'
 import { Button, Select, Stack, TextInput, Title } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { IconApps } from '@tabler/icons'
 import { ReactElement, useState } from 'react'
-
-interface CreateProjectProps {
-  repositories: Repository[]
-}
 
 const CreateProject: NextPageWithLayout = () => {
   const [showNotification, setShowNotification] = useState<

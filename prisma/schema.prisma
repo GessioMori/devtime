@@ -16,10 +16,13 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  githubId      String?
   accounts      Account[]
   sessions      Session[]
-  tasks         Tasks[]
+  tasks         Task[]
   ownProjects   Project[]
+
+  @@map("users")
 }
 
 model Session {
@@ -28,6 +31,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 model Account {
@@ -36,19 +41,20 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
+  refresh_token     String? @map("refreshToken")
+  access_token      String? @map("accessToken")
+  expires_at        Int?    @map("expiresAt")
+  token_type        String? @map("tokenType")
   scope             String?
-  id_token          String?
-  session_state     String?
+  id_token          String? @map("idToken")
+  session_state     String? @map("sessionState")
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@map("accounts")
 }
 
-model Tasks {
+model Task {
   id          String    @id @default(cuid())
   userId      String
   title       String
@@ -56,6 +62,8 @@ model Tasks {
   startTime   DateTime
   endTime     DateTime?
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
 }
 
 model Project {
@@ -67,4 +75,6 @@ model Project {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@map("projects")
 }
