@@ -30,7 +30,7 @@ import { ReactElement, useState } from 'react'
 const ListProjectsPage: NextPageWithLayout = () => {
   const [projectToDelete, setProjectToDelete] = useState<string>('')
 
-  const { data: projects, isLoading } = trpc.projects.listProjects.useQuery()
+  const { data: projects } = trpc.projects.listProjects.useQuery()
   const deleteProjectMutation = trpc.projects.deleteProject.useMutation()
 
   const deleteProject = async (projectId: string) => {

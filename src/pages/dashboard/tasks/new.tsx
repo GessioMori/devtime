@@ -1,7 +1,7 @@
 import Layout from '@/components/Layout'
 import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
-import { Button, Stack, TextInput, Title } from '@mantine/core'
+import { Button, Select, Stack, TextInput, Title } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { IconApps } from '@tabler/icons'
 import { ReactElement } from 'react'
@@ -10,7 +10,8 @@ const NewTask: NextPageWithLayout = () => {
   const form = useForm({
     initialValues: {
       title: '',
-      description: undefined
+      description: '',
+      projectId: ''
     },
 
     validate: {
@@ -19,13 +20,16 @@ const NewTask: NextPageWithLayout = () => {
     }
   })
 
+  const { data: projects, isLoading } = trpc.projects.listProjects.useQuery()
+
   const newTaskMutation = trpc.tasks.createTask.useMutation()
 
   async function createNewTask() {
     await newTaskMutation
       .mutateAsync({
         title: form.values.title,
-        description: form.values.description
+        description: form.values.description || undefined,
+        projectId: form.values.projectId || undefined
       })
       .then(() => form.reset())
   }
@@ -36,7 +40,31 @@ const NewTask: NextPageWithLayout = () => {
         <Title align={'center'}>Create a new task</Title>
 
         <TextInput placeholder="Task title" {...form.getInputProps('title')} />
-        <TextInput placeholder="Description" {...form.getInputProps('email')} />
+        <TextInput
+          placeholder="Description"
+          {...form.getInputProps('description')}
+        />
+        <Select
+          searchable
+          clearable
+          allowDeselect
+          placeholder={
+            isLoading
+              ? 'Loading your projects...'
+              : 'Choose a project (optional)'
+          }
+          data={
+            projects
+              ? projects.map((project) => {
+                  return {
+                    value: project.id,
+                    label: project.title
+                  }
+                })
+              : []
+          }
+          {...form.getInputProps('projectId')}
+        />
         <Stack align={'flex-end'}>
           <Button
             color={'cyan'}

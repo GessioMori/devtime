@@ -8,7 +8,8 @@ export const tasksRouter = (t: T) =>
       .input(
         z.object({
           title: z.string().min(10),
-          description: z.string().optional()
+          description: z.string().optional(),
+          projectId: z.string().cuid().optional()
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -20,7 +21,8 @@ export const tasksRouter = (t: T) =>
             title: input.title,
             description: input.description,
             startTime: new Date(),
-            userId: ctx.session.user?.id!
+            userId: ctx.session.user?.id!,
+            projectId: input.projectId
           }
         })
         return newTask
