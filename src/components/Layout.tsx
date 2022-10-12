@@ -3,6 +3,7 @@ import {
   Burger,
   Group,
   Header,
+  Loader,
   MediaQuery,
   Navbar,
   NavLink,
@@ -42,7 +43,7 @@ export default function Layout({ children }: LayoutProps) {
   })
 
   if (status === 'loading') {
-    return <div></div>
+    return <Loader />
   }
 
   const user: user = {

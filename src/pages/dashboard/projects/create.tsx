@@ -12,7 +12,7 @@ const CreateProject: NextPageWithLayout = () => {
     'success' | 'error' | undefined
   >(undefined)
 
-  const { data } = trpc.github.getUserRepositories.useQuery()
+  const { data, isLoading } = trpc.github.getUserRepositories.useQuery()
   const createProjectMutation = trpc.projects.createProject.useMutation()
 
   const form = useForm({
@@ -58,14 +58,18 @@ const CreateProject: NextPageWithLayout = () => {
             {...form.getInputProps('title')}
           />
           <TextInput
-            placeholder="Description"
+            placeholder="Description (optional)"
             {...form.getInputProps('description')}
           />
           <Select
             searchable
             clearable
             allowDeselect
-            placeholder="Github repository"
+            placeholder={
+              isLoading
+                ? 'Loading your repositories...'
+                : 'Choose a repository (optional)'
+            }
             data={
               data
                 ? data?.repositories.map((repository) => {
