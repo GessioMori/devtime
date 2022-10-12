@@ -23,6 +23,7 @@ import {
   IconTerminal2,
   IconTrash
 } from '@tabler/icons'
+import Link from 'next/link'
 
 import { ReactElement, useState } from 'react'
 
@@ -57,9 +58,14 @@ const ListProjectsPage: NextPageWithLayout = () => {
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Item icon={<IconTerminal2 />}>
-                See project details
-              </Menu.Item>
+              <Link href={`/dashboard/projects/${project.id}`}>
+                <Menu.Item
+                  icon={<IconTerminal2 />}
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  See project details
+                </Menu.Item>
+              </Link>
               <Menu.Item icon={<IconPencil />}>Edit project</Menu.Item>
               {project.githubRepoUrl && (
                 <Anchor

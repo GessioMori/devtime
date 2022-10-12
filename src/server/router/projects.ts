@@ -1,3 +1,4 @@
+import { prisma } from '@/server/db/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { T } from '.'
@@ -62,5 +63,16 @@ export const projectsRouter = (t: T) =>
         })
 
         return true
+      }),
+    getProject: t.procedure
+      .input(z.string().cuid())
+      .query(async ({ input: projectId }) => {
+        const project = await prisma.project.findUnique({
+          where: { id: projectId }
+        })
+        if (!project) {
+          throw new TRPCError({ code: 'NOT_FOUND' })
+        }
+        return project
       })
   })

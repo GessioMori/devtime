@@ -3,7 +3,7 @@ import { NextPageWithLayout } from '@/pages/_app'
 import type { ReactElement } from 'react'
 
 const Projects: NextPageWithLayout = () => {
-  return <div>Loading...</div>
+  return <div>Loading+...</div>
 }
 
 Projects.getLayout = function getLayout(page: ReactElement) {
