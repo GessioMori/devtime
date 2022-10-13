@@ -1,4 +1,5 @@
 import { initTRPC } from '@trpc/server'
+import superjson from 'superjson'
 import { ZodError } from 'zod'
 import { authRouter } from './auth'
 import { Context } from './context'
@@ -18,7 +19,8 @@ export const t = initTRPC.context<Context>().create({
             : null
       }
     }
-  }
+  },
+  transformer: superjson
 })
 
 export type T = typeof t

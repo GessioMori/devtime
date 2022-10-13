@@ -6,7 +6,7 @@ import { useForm } from '@mantine/form'
 import { IconApps } from '@tabler/icons'
 import { ReactElement } from 'react'
 
-const NewTask: NextPageWithLayout = () => {
+const CreateTask: NextPageWithLayout = () => {
   const form = useForm({
     initialValues: {
       title: '',
@@ -81,8 +81,8 @@ const NewTask: NextPageWithLayout = () => {
   )
 }
 
-NewTask.getLayout = function getLayout(page: ReactElement) {
+CreateTask.getLayout = function getLayout(page: ReactElement) {
   return <Layout>{page}</Layout>
 }
 
-export default NewTask
+export default CreateTask

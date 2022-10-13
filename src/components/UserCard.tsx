@@ -71,6 +71,7 @@ export function UserCard({
             <Menu.Item
               icon={<IconLogout size={14} />}
               onClick={() => signOut()}
+              color={'red'}
             >
               Logout
             </Menu.Item>
