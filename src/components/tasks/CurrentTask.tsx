@@ -1,10 +1,12 @@
 import { trpc } from '@/utils/trpc'
 import { Button } from '@mantine/core'
-import { Task } from '@prisma/client'
+import { Project, Task } from '@prisma/client'
 import { FunctionComponent } from 'react'
 
 interface CurrentTaskProps {
-  currentTask: Task
+  currentTask: Task & {
+    project: Project | null
+  }
   handleRefetch: () => void
 }
 
@@ -13,6 +15,11 @@ export const CurrentTask: FunctionComponent<CurrentTaskProps> = ({
   handleRefetch
 }) => {
   const finishTaskMutation = trpc.tasks.endTask.useMutation()
+  const { data } = trpc.github.getLastCommits.useQuery(
+    currentTask.project?.githubRepoUrl || ''
+  )
+
+  console.log(data)
 
   const handleFinishTask = async () => {
     await finishTaskMutation.mutateAsync(currentTask.id).then(() => {
@@ -20,5 +27,5 @@ export const CurrentTask: FunctionComponent<CurrentTaskProps> = ({
     })
   }
 
-  return <Button onClick={handleFinishTask}>END TASK</Button>
+  return <Button onClick={() => console.log(currentTask)}>END TASK</Button>
 }

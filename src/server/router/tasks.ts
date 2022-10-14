@@ -56,6 +56,9 @@ export const tasksRouter = (t: T) =>
         where: {
           userId: ctx.session?.user?.id,
           finishTime: null
+        },
+        include: {
+          project: true
         }
       })
       return currentTask
