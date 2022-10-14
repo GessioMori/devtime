@@ -49,36 +49,13 @@ export const tasksRouter = (t: T) =>
         }
       })
 
-      return tasks.map((task) => {
-        const durationObjOrNull = task.endTime
-          ? intervalToDuration({ end: task.endTime, start: task.startTime })
-          : null
-        let duration: string
-        if (durationObjOrNull) {
-          if (durationObjOrNull.days && durationObjOrNull.days > 1) {
-            duration = `${durationObjOrNull.days} days`
-          } else if (durationObjOrNull.days === 1) {
-            duration = `${durationObjOrNull.days} day`
-          } else {
-            duration = `${durationObjOrNull.hours}:${String(
-              durationObjOrNull.minutes
-            ).padStart(2, '0')}`
-          }
-        } else {
-          duration = '-'
-        }
-
-        return {
-          ...task,
-          duration
-        }
-      })
+      return tasks
     }),
     getCurrentTask: t.procedure.query(async ({ ctx }) => {
       const currentTask = await ctx.prisma.task.findFirst({
         where: {
           userId: ctx.session?.user?.id,
-          endTime: null
+          finishTime: null
         }
       })
       return currentTask
@@ -92,15 +69,37 @@ export const tasksRouter = (t: T) =>
             userId: ctx.session?.user?.id
           }
         })
+
         if (!task) {
           throw new TRPCError({ code: 'NOT_FOUND' })
         }
+
+        const finishTime = new Date()
+
+        const durationObj = intervalToDuration({
+          end: finishTime,
+          start: task.startTime
+        })
+
+        let duration: string
+
+        if (durationObj.days && durationObj.days > 1) {
+          duration = `${durationObj.days} days`
+        } else if (durationObj.days === 1) {
+          duration = '1 day'
+        } else {
+          duration = `${durationObj.hours}:${String(
+            durationObj.minutes
+          ).padStart(2, '0')}`
+        }
+
         const updatedTask = await ctx.prisma.task.update({
           where: {
             id: taskId
           },
           data: {
-            endTime: new Date()
+            finishTime,
+            duration
           }
         })
         return updatedTask

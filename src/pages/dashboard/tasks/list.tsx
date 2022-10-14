@@ -44,7 +44,7 @@ const ListTasks: NextPageWithLayout = () => {
         </td>
         <td>{format(task.startTime, 'dd/MM/yyyy - HH:mm')}</td>
 
-        <td>{task.duration}</td>
+        <td>{task.duration || '-'}</td>
         <td>{task.project ? task.project.title : '-'}</td>
         <td>
           <Menu position={'bottom-end'}>
