@@ -17,6 +17,7 @@ export const tasksRouter = (t: T) =>
         if (!ctx.session) {
           throw new TRPCError({ code: 'UNAUTHORIZED' })
         }
+
         const newTask = await ctx.prisma.task.create({
           data: {
             title: input.title,
@@ -72,5 +73,36 @@ export const tasksRouter = (t: T) =>
           duration
         }
       })
-    })
+    }),
+    getCurrentTask: t.procedure.query(async ({ ctx }) => {
+      const currentTask = await ctx.prisma.task.findFirst({
+        where: {
+          userId: ctx.session?.user?.id,
+          endTime: null
+        }
+      })
+      return currentTask
+    }),
+    endTask: t.procedure
+      .input(z.string().cuid())
+      .mutation(async ({ ctx, input: taskId }) => {
+        const task = await ctx.prisma.task.findFirst({
+          where: {
+            id: taskId,
+            userId: ctx.session?.user?.id
+          }
+        })
+        if (!task) {
+          throw new TRPCError({ code: 'NOT_FOUND' })
+        }
+        const updatedTask = await ctx.prisma.task.update({
+          where: {
+            id: taskId
+          },
+          data: {
+            endTime: new Date()
+          }
+        })
+        return updatedTask
+      })
   })

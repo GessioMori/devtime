@@ -4,15 +4,14 @@ import { getSession } from 'next-auth/react'
 
 import { prisma } from '@/server/db/client'
 
-export const createContext = async ({
-  req,
-  res
-}: trpcNext.CreateNextContextOptions) => {
-  const session = await getSession({ req })
+export const createContext = async (
+  opts: trpcNext.CreateNextContextOptions
+) => {
+  const session = await getSession(opts)
+
+  console.log('createContext for', session?.user?.name ?? 'unknown user')
 
   return {
-    req,
-    res,
     session,
     prisma
   }

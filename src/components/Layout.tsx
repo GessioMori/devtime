@@ -42,6 +42,9 @@ export default function Layout({ children }: LayoutProps) {
     }
   })
 
+  console.log('LAYOUT RENDERED')
+
+  // check if this is valid
   if (status === 'loading') {
     return <Loader />
   }
@@ -76,9 +79,12 @@ export default function Layout({ children }: LayoutProps) {
               label="Tasks"
               defaultOpened={true}
             >
+              <Link href={'/dashboard/tasks'}>
+                <NavLink label="Index" onClick={() => setOpened((o) => !o)} />
+              </Link>
               <Link href={'/dashboard/tasks/create'}>
                 <NavLink
-                  label="Start a new task"
+                  label="New/current task"
                   onClick={() => setOpened((o) => !o)}
                 />
               </Link>
