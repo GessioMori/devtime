@@ -6,16 +6,21 @@ import { trpc } from '@/utils/trpc'
 import type { ReactElement } from 'react'
 
 const Tasks: NextPageWithLayout = () => {
-  const { data, refetch } = trpc.tasks.getCurrentTask.useQuery(undefined, {
-    suspense: true
-  })
+  const { data: currentTask, refetch } = trpc.tasks.getCurrentTask.useQuery(
+    undefined,
+    {
+      suspense: true
+    }
+  )
 
   const handleRefetch = () => {
     refetch()
   }
 
-  if (data) {
-    return <CurrentTask currentTask={data} handleRefetch={handleRefetch} />
+  if (currentTask) {
+    return (
+      <CurrentTask currentTask={currentTask} handleRefetch={handleRefetch} />
+    )
   }
 
   return <CreateTask handleRefetch={handleRefetch} />

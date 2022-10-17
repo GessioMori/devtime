@@ -62,12 +62,14 @@ export const CreateTask: FunctionComponent<CreateTaskProps> = ({
           }
           data={
             projects
-              ? projects.map((project) => {
-                  return {
-                    value: project.id,
-                    label: project.title
-                  }
-                })
+              ? projects
+                  .map((project) => {
+                    return {
+                      value: project.id,
+                      label: project.title
+                    }
+                  })
+                  .sort((a, b) => a.label.localeCompare(b.label))
               : []
           }
           {...form.getInputProps('projectId')}

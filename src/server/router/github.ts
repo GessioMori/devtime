@@ -14,11 +14,12 @@ interface Commit {
   commit: {
     message?: string
     author: {
-      date: string
+      date: Date
       email: string
       name: string
     }
   }
+  html_url: string
 }
 
 export const githubRouter = (t: T) =>
@@ -52,17 +53,24 @@ export const githubRouter = (t: T) =>
     getLastCommits: t.procedure
       .input(z.string())
       .query(async ({ input: repoUrl }) => {
-        const userNameRepoName = repoUrl.split('github.com')[1]
-        const url = `https://api.github.com/repos${userNameRepoName}/commits?page=1&per_page=10`
-        console.log(url)
+        if (repoUrl === '') {
+          return null
+        }
+        const repositoryName = repoUrl.split('github.com')[1]
+        const url = `https://api.github.com/repos${repositoryName}/commits?page=1&per_page=10`
         const commits: Commit[] = await fetch(url).then((res) => res.json())
 
-        const mappedCommits = commits.map((commit) => {
+        if (!commits) {
+          return null
+        }
+
+        const mappedCommits = commits.map((commitData) => {
           return {
-            message: commit.commit.message,
-            date: commit.commit.author.date,
-            email: commit.commit.author.email,
-            name: commit.commit.author.name
+            message: commitData.commit.message,
+            date: commitData.commit.author.date,
+            email: commitData.commit.author.email,
+            name: commitData.commit.author.name,
+            html_url: commitData.html_url
           }
         })
 

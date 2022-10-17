@@ -1,4 +1,4 @@
-import { MantineThemeOverride } from '@mantine/core'
+import { createStyles, MantineThemeOverride } from '@mantine/core'
 
 export const defaultTheme: MantineThemeOverride = {
   colorScheme: 'dark',
@@ -22,3 +22,22 @@ export const defaultTheme: MantineThemeOverride = {
     ]
   }
 }
+
+export const useStyles = createStyles((theme) => ({
+  responsiveTimer: {
+    fontSize: '500%',
+    color: theme.colors.cyan[3],
+    backgroundColor: theme.colors.dark[6],
+    borderRadius: '8px',
+
+    [theme.fn.smallerThan('sm')]: {
+      fontSize: '300%'
+    }
+  },
+  taskInfo: {
+    fontSize: theme.fontSizes.lg,
+    span: {
+      fontWeight: 'bold'
+    }
+  }
+}))

@@ -48,7 +48,6 @@ export const tasksRouter = (t: T) =>
           startTime: 'desc'
         }
       })
-
       return tasks
     }),
     getCurrentTask: t.procedure.query(async ({ ctx }) => {
@@ -63,9 +62,14 @@ export const tasksRouter = (t: T) =>
       })
       return currentTask
     }),
-    endTask: t.procedure
-      .input(z.string().cuid())
-      .mutation(async ({ ctx, input: taskId }) => {
+    finishTask: t.procedure
+      .input(
+        z.object({
+          taskId: z.string().cuid(),
+          githubCommitUrl: z.string().url().nullish()
+        })
+      )
+      .mutation(async ({ ctx, input: { taskId, githubCommitUrl } }) => {
         const task = await ctx.prisma.task.findFirst({
           where: {
             id: taskId,
@@ -102,9 +106,11 @@ export const tasksRouter = (t: T) =>
           },
           data: {
             finishTime,
-            duration
+            duration,
+            githubCommitUrl
           }
         })
+
         return updatedTask
       })
   })
