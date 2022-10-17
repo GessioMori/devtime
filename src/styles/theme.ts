@@ -20,6 +20,13 @@ export const defaultTheme: MantineThemeOverride = {
       '#ff6b6b', // overrides default red.8 to get a brighter error color
       '#c92a2a'
     ]
+  },
+  components: {
+    Button: {
+      defaultProps: {
+        variant: 'outline'
+      }
+    }
   }
 }
 

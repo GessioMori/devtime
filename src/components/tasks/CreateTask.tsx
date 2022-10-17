@@ -84,7 +84,6 @@ export const CreateTask: FunctionComponent<CreateTaskProps> = ({
             color={'cyan'}
             leftIcon={<IconApps />}
             type="submit"
-            variant="outline"
             loading={newTaskMutation.status === 'loading'}
             sx={{ width: '15rem' }}
           >

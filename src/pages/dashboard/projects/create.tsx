@@ -89,7 +89,6 @@ const CreateProject: NextPageWithLayout = () => {
               type="submit"
               loading={createProjectMutation.status === 'loading'}
               sx={{ width: '15rem' }}
-              variant="outline"
             >
               Create new project
             </Button>
