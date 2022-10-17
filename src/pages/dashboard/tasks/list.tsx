@@ -3,6 +3,7 @@ import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
 import {
   ActionIcon,
+  Anchor,
   Center,
   Container,
   Loader,
@@ -49,7 +50,7 @@ const ListTasks: NextPageWithLayout = () => {
         <td>
           <Menu position={'bottom-end'}>
             <Menu.Target>
-              <ActionIcon variant={'outline'}>
+              <ActionIcon variant="outline">
                 <IconDots />
               </ActionIcon>
             </Menu.Target>
@@ -60,9 +61,19 @@ const ListTasks: NextPageWithLayout = () => {
                   <Menu.Item icon={<IconTerminal2 />}>Go to project</Menu.Item>
                 </Link>
               )}
-              <Menu.Item icon={<IconBrandGithub />}>
-                See github commit
-              </Menu.Item>
+              {task.githubCommitUrl && (
+                <Anchor
+                  underline={false}
+                  href={task.githubCommitUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Menu.Item icon={<IconBrandGithub />}>
+                    See github commit
+                  </Menu.Item>
+                </Anchor>
+              )}
+
               <Menu.Item color={'red.5'} icon={<IconCircleX />}>
                 Delete task
               </Menu.Item>

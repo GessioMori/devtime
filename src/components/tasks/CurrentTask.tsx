@@ -69,6 +69,7 @@ export const CurrentTask: FunctionComponent<CurrentTaskProps> = ({
         setTimer(durationStr)
       }
     }
+    refreshClock()
     setInterval(refreshClock, 1000)
   }, [currentTask.startTime])
 
@@ -102,7 +103,7 @@ export const CurrentTask: FunctionComponent<CurrentTaskProps> = ({
 
           <Stack spacing={'xs'}>
             {!isShowCommits && currentTask.projectId && (
-              <Button variant={'outline'} fullWidth onClick={handleShowCommits}>
+              <Button variant="outline" fullWidth onClick={handleShowCommits}>
                 Yes, choose a commit from project repository
               </Button>
             )}
@@ -137,7 +138,7 @@ export const CurrentTask: FunctionComponent<CurrentTaskProps> = ({
               </>
             )}
             <Button
-              variant={'outline'}
+              variant="outline"
               onClick={handleFinishTask}
               loading={isLoadingMutation}
               fullWidth
@@ -150,7 +151,7 @@ export const CurrentTask: FunctionComponent<CurrentTaskProps> = ({
                 : 'Finish the task'}
             </Button>
             <Button
-              variant={'outline'}
+              variant="outline"
               onClick={() => {
                 setIsFinishing(false)
                 setIsShowCommits(false)
@@ -186,6 +187,7 @@ export const CurrentTask: FunctionComponent<CurrentTaskProps> = ({
           <Button
             sx={{ maxWidth: '20rem' }}
             onClick={() => setIsFinishing(true)}
+            variant="outline"
           >
             Finish task
           </Button>

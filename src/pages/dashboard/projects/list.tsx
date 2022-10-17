@@ -123,7 +123,7 @@ const ListProjectsPage: NextPageWithLayout = () => {
           <Stack spacing={'xs'}>
             <Button
               color={'red'}
-              variant="light"
+              variant="outline"
               fullWidth
               loading={deleteProjectMutation.status === 'loading'}
               onClick={() => deleteProject(projectToDelete)}
@@ -132,7 +132,7 @@ const ListProjectsPage: NextPageWithLayout = () => {
               Delete
             </Button>
             <Button
-              variant="light"
+              variant="outline"
               onClick={() => setProjectToDelete('')}
               leftIcon={<IconArrowBack />}
               fullWidth

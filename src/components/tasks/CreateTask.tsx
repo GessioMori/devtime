@@ -42,9 +42,14 @@ export const CreateTask: FunctionComponent<CreateTaskProps> = ({
   }
 
   return (
-    <form onSubmit={form.onSubmit(() => createNewTask())}>
+    <form
+      onSubmit={form.onSubmit(() => createNewTask())}
+      style={{ width: '100%' }}
+    >
       <Stack px={'lg'}>
-        <Title align={'center'}>Create a new task</Title>
+        <Title align={'center'} order={3}>
+          Create a new task
+        </Title>
 
         <TextInput placeholder="Task title" {...form.getInputProps('title')} />
         <TextInput
@@ -79,6 +84,7 @@ export const CreateTask: FunctionComponent<CreateTaskProps> = ({
             color={'cyan'}
             leftIcon={<IconApps />}
             type="submit"
+            variant="outline"
             loading={newTaskMutation.status === 'loading'}
             sx={{ width: '15rem' }}
           >
