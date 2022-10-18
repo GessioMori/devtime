@@ -68,7 +68,15 @@ export const projectsRouter = (t: T) =>
       .input(z.string().cuid())
       .query(async ({ input: projectId }) => {
         const project = await prisma.project.findUnique({
-          where: { id: projectId }
+          where: { id: projectId },
+          include: {
+            owner: true,
+            tasks: {
+              include: {
+                user: true
+              }
+            }
+          }
         })
         if (!project) {
           throw new TRPCError({ code: 'NOT_FOUND' })
