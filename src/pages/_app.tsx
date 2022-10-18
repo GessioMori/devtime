@@ -2,21 +2,21 @@ import { defaultTheme } from '@/styles/theme'
 import { trpc } from '@/utils/trpc'
 import { MantineProvider } from '@mantine/core'
 import { NextPage } from 'next'
+import { Session } from 'next-auth'
 import { SessionProvider } from 'next-auth/react'
 import { AppProps } from 'next/app'
 import Head from 'next/head'
 import { ReactElement, ReactNode } from 'react'
 
-export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+export type NextPageWithLayout<P = unknown, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode
 }
 
-type AppPropsWithLayoutAndContext = AppProps & {
+type AppPropsWithLayoutAndContext = AppProps<{ session: Session }> & {
   Component: NextPageWithLayout
-  pageProps: any
 }
 
-function App({ Component, pageProps }: AppPropsWithLayoutAndContext) {
+const App = ({ Component, pageProps }: AppPropsWithLayoutAndContext) => {
   const getLayout = Component.getLayout ?? ((page) => page)
   return (
     <>

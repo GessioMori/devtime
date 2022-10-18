@@ -14,7 +14,7 @@ export const tasksRouter = (t: T) =>
         })
       )
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.session) {
+        if (!ctx.session || !ctx.session.user?.id) {
           throw new TRPCError({ code: 'UNAUTHORIZED' })
         }
 
@@ -23,7 +23,7 @@ export const tasksRouter = (t: T) =>
             title: input.title,
             description: input.description,
             startTime: new Date(),
-            userId: ctx.session.user?.id!,
+            userId: ctx.session.user.id,
             projectId: input.projectId
           }
         })
