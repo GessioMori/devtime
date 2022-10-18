@@ -88,7 +88,6 @@ model Project {
   users         UsersOnProjects[]
   invites       ProjectInvites[]
 
-  @@index([ownerId])
   @@map("projects")
 }
 
@@ -111,6 +110,7 @@ enum InviteStatus {
 }
 
 model ProjectInvites {
+  id String @id @default(cuid())
   sender     User         @relation(fields: [senderId], references: [id], onDelete: Cascade, name: "sender")
   senderId   String
   receiver   User         @relation(fields: [receiverId], references: [id], onDelete: Cascade, name: "receiver")
@@ -120,6 +120,5 @@ model ProjectInvites {
   status     InviteStatus @default(PENDING)
   createdAt  DateTime     @default(now())
 
-  @@id([senderId, receiverId])
   @@map("projectInvites")
 }
