@@ -10,7 +10,6 @@ import {
   Menu,
   Modal,
   Popover,
-  ScrollArea,
   Stack,
   Table,
   Text
@@ -153,34 +152,37 @@ const ListTasks: NextPageWithLayout = () => {
         </Stack>
       </Modal>
       <Container>
-        <ScrollArea>
-          <Table
-            verticalSpacing={'sm'}
-            highlightOnHover={true}
-            horizontalSpacing={'xs'}
-          >
-            <thead>
-              <tr style={{ whiteSpace: 'nowrap' }}>
-                <th>
-                  <Text>Title</Text>
-                </th>
-                <th>
-                  <Text>Start</Text>
-                </th>
-                <th>
-                  <Text>Duration (h)</Text>
-                </th>
-                <th>
-                  <Text>Project</Text>
-                </th>
-                <th style={{ width: '5%' }}>
-                  <Text></Text>
-                </th>
-              </tr>
-            </thead>
-            <tbody>{rows}</tbody>
-          </Table>
-        </ScrollArea>
+        <Table
+          verticalSpacing={'sm'}
+          highlightOnHover={true}
+          horizontalSpacing={'xs'}
+          style={{
+            display: 'block',
+            whiteSpace: 'nowrap',
+            overflowX: 'auto'
+          }}
+        >
+          <thead>
+            <tr style={{ whiteSpace: 'nowrap' }}>
+              <th>
+                <Text>Title</Text>
+              </th>
+              <th>
+                <Text>Start</Text>
+              </th>
+              <th>
+                <Text>Duration (h)</Text>
+              </th>
+              <th>
+                <Text>Project</Text>
+              </th>
+              <th style={{ width: '5%' }}>
+                <Text></Text>
+              </th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>
       </Container>
     </>
   )
