@@ -4,6 +4,7 @@ import { ZodError } from 'zod'
 import { authRouter } from './auth'
 import { Context } from './context'
 import { githubRouter } from './github'
+import { invitesRouter } from './invites'
 import { projectsRouter } from './projects'
 import { tasksRouter } from './tasks'
 
@@ -29,7 +30,8 @@ export const appRouter = t.router({
   auth: t.mergeRouters(authRouter(t)),
   tasks: t.mergeRouters(tasksRouter(t)),
   github: t.mergeRouters(githubRouter(t)),
-  projects: t.mergeRouters(projectsRouter(t))
+  projects: t.mergeRouters(projectsRouter(t)),
+  invites: t.mergeRouters(invitesRouter(t))
 })
 
 export type AppRouter = typeof appRouter

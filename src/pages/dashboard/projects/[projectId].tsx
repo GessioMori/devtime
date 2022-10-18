@@ -1,3 +1,4 @@
+import { Invitation } from '@/components/project/Invitation'
 import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
 import {
@@ -23,7 +24,9 @@ import {
   IconCircleX,
   IconDots,
   IconPencil,
-  IconTrash
+  IconTrash,
+  IconUserCircle,
+  IconUserOff
 } from '@tabler/icons'
 import { format } from 'date-fns'
 import { GetServerSideProps } from 'next'
@@ -122,6 +125,45 @@ const ProjectDetailsPage: NextPageWithLayout<{ projectId: string }> = ({
       </tr>
     ))
 
+  const usersRows =
+    project?.users &&
+    project.users.map((userInfo) => (
+      <tr key={userInfo.userId} style={{ whiteSpace: 'nowrap' }}>
+        <td>
+          {userInfo.isOwner ? (
+            <Text>
+              {userInfo.user.name}{' '}
+              <Text color={'dimmed'} component="span">
+                (Owner)
+              </Text>
+            </Text>
+          ) : (
+            <Text>{userInfo.user.name}</Text>
+          )}
+        </td>
+        <td>{format(userInfo.assignedAt, 'dd/MM/yyyy')}</td>
+        <td>
+          <Menu position={'bottom-end'}>
+            <Menu.Target>
+              <ActionIcon variant="outline">
+                <IconDots />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown style={{ whiteSpace: 'nowrap' }}>
+              <Menu.Item icon={<IconUserCircle />}>
+                Go to user profile
+              </Menu.Item>
+              {project.isProjectOwner && project.ownerId !== userInfo.userId && (
+                <Menu.Item icon={<IconUserOff />} color={'red.5'}>
+                  Remove from project
+                </Menu.Item>
+              )}
+            </Menu.Dropdown>
+          </Menu>
+        </td>
+      </tr>
+    ))
+
   return (
     <>
       <Modal
@@ -204,6 +246,43 @@ const ProjectDetailsPage: NextPageWithLayout<{ projectId: string }> = ({
           {project?.createdAt.toLocaleDateString()}
         </Text>
       </Container>
+      <Container>
+        <Space h={'xl'} />
+        <Title
+          order={4}
+          sx={{ maxWidth: '50%', borderBottom: '1px solid #c1c2c5' }}
+        >
+          Users
+        </Title>
+        <Space h={'md'} />
+
+        <Table
+          verticalSpacing={'sm'}
+          highlightOnHover={true}
+          horizontalSpacing={'xs'}
+          style={{
+            display: 'block',
+            whiteSpace: 'nowrap',
+            overflowX: 'auto'
+          }}
+        >
+          <thead>
+            <tr style={{ whiteSpace: 'nowrap' }}>
+              <th>
+                <Text>Name</Text>
+              </th>
+              <th>
+                <Text>Started at</Text>
+              </th>
+              <th style={{ width: '5%' }}>
+                <Text></Text>
+              </th>
+            </tr>
+          </thead>
+          <tbody>{usersRows}</tbody>
+        </Table>
+      </Container>
+      {project?.id && <Invitation projectId={project?.id} />}
       {project?.tasks && project.tasks.length > 0 && (
         <Container>
           <Space h={'xl'} />
@@ -213,8 +292,7 @@ const ProjectDetailsPage: NextPageWithLayout<{ projectId: string }> = ({
           >
             Tasks
           </Title>
-          <Space h={'xl'} />
-
+          <Space h={'md'} />
           <Table
             verticalSpacing={'sm'}
             highlightOnHover={true}

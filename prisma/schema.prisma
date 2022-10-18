@@ -96,7 +96,7 @@ model UsersOnProjects {
   userId     String
   project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId  String
-  isOwner    Boolean
+  isOwner    Boolean  @default(false)
   assignedAt DateTime @default(now())
 
   @@id([userId, projectId])
@@ -110,7 +110,7 @@ enum InviteStatus {
 }
 
 model ProjectInvites {
-  id String @id @default(cuid())
+  id         String       @id @default(cuid())
   sender     User         @relation(fields: [senderId], references: [id], onDelete: Cascade, name: "sender")
   senderId   String
   receiver   User         @relation(fields: [receiverId], references: [id], onDelete: Cascade, name: "receiver")

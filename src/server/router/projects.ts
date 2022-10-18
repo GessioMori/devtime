@@ -48,7 +48,17 @@ export const projectsRouter = (t: T) =>
         }
       })
 
-      return ownProjects
+      const allProjects = await ctx.prisma.project.findMany({
+        where: {
+          users: {
+            some: {
+              userId: ctx.session.user.id
+            }
+          }
+        }
+      })
+
+      return allProjects
     }),
     deleteProject: t.procedure
       .input(z.string().cuid())
@@ -101,7 +111,8 @@ export const projectsRouter = (t: T) =>
               )?.user.name,
               isOwner: task.userId === ctx.session?.user?.id
             }
-          })
+          }),
+          isProjectOwner: project.ownerId === ctx.session?.user?.id
         }
         return mappedProject
       })
