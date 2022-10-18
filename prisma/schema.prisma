@@ -33,6 +33,7 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
+  @@index([userId])
 }
 
 model Account {
@@ -52,6 +53,7 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
+  @@index([userId])
 }
 
 model Task {
@@ -68,6 +70,8 @@ model Task {
   project         Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
   @@map("tasks")
+  @@index([userId])
+  @@index([projectId])
 }
 
 model Project {
@@ -82,4 +86,5 @@ model Project {
   tasks         Task[]
 
   @@map("projects")
+  @@index([ownerId])
 }
