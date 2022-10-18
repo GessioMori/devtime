@@ -23,7 +23,16 @@ export const projectsRouter = (t: T) =>
             title: input.title,
             ownerId: ctx.session.user?.id,
             description: input.description,
-            githubRepoUrl: input.githubRepoUrl
+            githubRepoUrl: input.githubRepoUrl,
+
+            users: {
+              create: [
+                {
+                  userId: ctx.session.user.id,
+                  isOwner: true
+                }
+              ]
+            }
           }
         })
         return newProject
@@ -66,21 +75,34 @@ export const projectsRouter = (t: T) =>
       }),
     getProject: t.procedure
       .input(z.string().cuid())
-      .query(async ({ input: projectId }) => {
+      .query(async ({ ctx, input: projectId }) => {
         const project = await prisma.project.findUnique({
           where: { id: projectId },
           include: {
-            owner: true,
-            tasks: {
+            users: {
               include: {
                 user: true
               }
-            }
+            },
+            tasks: true
           }
         })
         if (!project) {
           throw new TRPCError({ code: 'NOT_FOUND' })
         }
-        return project
+
+        const mappedProject = {
+          ...project,
+          tasks: project.tasks.map((task) => {
+            return {
+              ...task,
+              ownerName: project.users.find(
+                (user) => user.user.id === task.userId
+              )?.user.name,
+              isOwner: task.userId === ctx.session?.user?.id
+            }
+          })
+        }
+        return mappedProject
       })
   })

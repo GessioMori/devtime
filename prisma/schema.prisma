@@ -11,16 +11,16 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String            @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?           @unique
   emailVerified DateTime?
   image         String?
   githubId      String?
   accounts      Account[]
   sessions      Session[]
   tasks         Task[]
-  ownProjects   Project[]
+  projects      UsersOnProjects[]
 
   @@map("users")
 }
@@ -32,8 +32,8 @@ model Session {
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("sessions")
   @@index([userId])
+  @@map("sessions")
 }
 
 model Account {
@@ -52,8 +52,8 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-  @@map("accounts")
   @@index([userId])
+  @@map("accounts")
 }
 
 model Task {
@@ -69,22 +69,33 @@ model Task {
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   project         Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
-  @@map("tasks")
   @@index([userId])
   @@index([projectId])
+  @@map("tasks")
 }
 
 model Project {
-  id            String   @id @default(cuid())
+  id            String            @id @default(cuid())
   ownerId       String
   title         String
   githubRepoUrl String?
   description   String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
   tasks         Task[]
+  users         UsersOnProjects[]
 
-  @@map("projects")
   @@index([ownerId])
+  @@map("projects")
+}
+
+model UsersOnProjects {
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId  String
+  isOwner    Boolean
+  assignedAt DateTime @default(now())
+
+  @@id([userId, projectId])
 }

@@ -87,7 +87,7 @@ const ProjectDetailsPage: NextPageWithLayout<{ projectId: string }> = ({
         <td>{format(task.startTime, 'dd/MM/yyyy - HH:mm')}</td>
 
         <td>{task.duration || '-'}</td>
-        <td>{task.user.name}</td>
+        <td>{task.ownerName}</td>
         <td>
           <Menu position={'bottom-end'}>
             <Menu.Target>
@@ -197,7 +197,7 @@ const ProjectDetailsPage: NextPageWithLayout<{ projectId: string }> = ({
         )}
         <Text>
           <span style={{ fontWeight: 'bold' }}>Owner: </span>
-          {project?.owner.name}
+          {project?.users.filter((rel) => rel.isOwner)[0]?.user.name}
         </Text>
         <Text>
           <span style={{ fontWeight: 'bold' }}>Created at: </span>
