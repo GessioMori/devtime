@@ -112,5 +112,28 @@ export const tasksRouter = (t: T) =>
         })
 
         return updatedTask
+      }),
+    deleteTask: t.procedure
+      .input(z.string().cuid())
+      .mutation(async ({ ctx, input: taskId }) => {
+        if (!ctx.session || !ctx.session.user || !ctx.session.user.id) {
+          throw new TRPCError({ code: 'UNAUTHORIZED' })
+        }
+        const task = await ctx.prisma.task.findUnique({
+          where: { id: taskId }
+        })
+        if (!task) {
+          throw new TRPCError({ code: 'NOT_FOUND' })
+        } else if (task.userId !== ctx.session.user.id) {
+          throw new TRPCError({ code: 'FORBIDDEN' })
+        }
+
+        await ctx.prisma.task.delete({
+          where: {
+            id: taskId
+          }
+        })
+
+        return true
       })
   })

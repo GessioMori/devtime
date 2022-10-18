@@ -3,26 +3,45 @@ import { trpc } from '@/utils/trpc'
 import {
   ActionIcon,
   Anchor,
+  Button,
   Center,
   Container,
   Loader,
   Menu,
+  Modal,
   Popover,
+  Stack,
   Table,
   Text
 } from '@mantine/core'
 import {
+  IconArrowBack,
   IconBrandGithub,
   IconCircleX,
   IconDots,
   IconPencil,
-  IconTerminal2
+  IconTerminal2,
+  IconTrash
 } from '@tabler/icons'
 import { format } from 'date-fns'
 import Link from 'next/link'
+import { useState } from 'react'
 
 const ListTasks: NextPageWithLayout = () => {
   const { data: tasks } = trpc.tasks.getTasks.useQuery()
+  const deleteTaskMutation = trpc.tasks.deleteTask.useMutation()
+
+  const [taskToDelete, setTaskToDelete] = useState<string>('')
+
+  const deleteTask = async (taskId: string) => {
+    await deleteTaskMutation.mutateAsync(taskId).then(() => {
+      setTaskToDelete('')
+      tasks?.splice(
+        tasks.findIndex((task) => taskId === task.id),
+        1
+      )
+    })
+  }
 
   const rows = tasks ? (
     tasks.map((task) => (
@@ -71,7 +90,11 @@ const ListTasks: NextPageWithLayout = () => {
                 </Anchor>
               )}
 
-              <Menu.Item color={'red.5'} icon={<IconCircleX />}>
+              <Menu.Item
+                color={'red.5'}
+                icon={<IconCircleX />}
+                onClick={() => setTaskToDelete(task.id)}
+              >
                 Delete task
               </Menu.Item>
             </Menu.Dropdown>
@@ -90,34 +113,73 @@ const ListTasks: NextPageWithLayout = () => {
   )
 
   return (
-    <Container>
-      <Table
-        verticalSpacing={'sm'}
-        highlightOnHover={true}
-        horizontalSpacing={'xs'}
+    <>
+      <Modal
+        opened={!!taskToDelete}
+        onClose={() => setTaskToDelete('')}
+        withCloseButton={false}
       >
-        <thead>
-          <tr style={{ whiteSpace: 'nowrap' }}>
-            <th>
-              <Text>Title</Text>
-            </th>
-            <th>
-              <Text>Start</Text>
-            </th>
-            <th>
-              <Text>Duration (h)</Text>
-            </th>
-            <th>
-              <Text>Project</Text>
-            </th>
-            <th style={{ width: '5%' }}>
-              <Text></Text>
-            </th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </Table>
-    </Container>
+        <Stack>
+          <Text inline>
+            Are you sure you want to delete &quot;
+            {taskToDelete &&
+              (tasks?.filter((project) => project.id === taskToDelete)[0]
+                ?.title ||
+                '')}
+            &quot; ?
+          </Text>
+          <Text color={'dimmed'} inline>
+            (This action can not be undone)
+          </Text>
+          <Stack spacing={'xs'}>
+            <Button
+              color={'red'}
+              fullWidth
+              loading={deleteTaskMutation.status === 'loading'}
+              onClick={() => deleteTask(taskToDelete)}
+              leftIcon={<IconTrash />}
+            >
+              Delete
+            </Button>
+            <Button
+              onClick={() => setTaskToDelete('')}
+              leftIcon={<IconArrowBack />}
+              fullWidth
+            >
+              Cancel
+            </Button>
+          </Stack>
+        </Stack>
+      </Modal>
+      <Container>
+        <Table
+          verticalSpacing={'sm'}
+          highlightOnHover={true}
+          horizontalSpacing={'xs'}
+        >
+          <thead>
+            <tr style={{ whiteSpace: 'nowrap' }}>
+              <th>
+                <Text>Title</Text>
+              </th>
+              <th>
+                <Text>Start</Text>
+              </th>
+              <th>
+                <Text>Duration (h)</Text>
+              </th>
+              <th>
+                <Text>Project</Text>
+              </th>
+              <th style={{ width: '5%' }}>
+                <Text></Text>
+              </th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>
+      </Container>
+    </>
   )
 }
 
