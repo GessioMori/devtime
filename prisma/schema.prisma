@@ -11,16 +11,18 @@ datasource db {
 }
 
 model User {
-  id            String            @id @default(cuid())
-  name          String?
-  email         String?           @unique
-  emailVerified DateTime?
-  image         String?
-  githubId      String?
-  accounts      Account[]
-  sessions      Session[]
-  tasks         Task[]
-  projects      UsersOnProjects[]
+  id              String            @id @default(cuid())
+  name            String?
+  email           String?           @unique
+  emailVerified   DateTime?
+  image           String?
+  githubId        String?
+  accounts        Account[]
+  sessions        Session[]
+  tasks           Task[]
+  projects        UsersOnProjects[]
+  invitesSent     ProjectInvites[]  @relation(name: "sender")
+  invitesReceived ProjectInvites[]  @relation(name: "receiver")
 
   @@map("users")
 }
@@ -84,6 +86,7 @@ model Project {
   updatedAt     DateTime          @updatedAt
   tasks         Task[]
   users         UsersOnProjects[]
+  invites       ProjectInvites[]
 
   @@index([ownerId])
   @@map("projects")
@@ -98,4 +101,25 @@ model UsersOnProjects {
   assignedAt DateTime @default(now())
 
   @@id([userId, projectId])
+  @@map("usersOnProjects")
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model ProjectInvites {
+  sender     User         @relation(fields: [senderId], references: [id], onDelete: Cascade, name: "sender")
+  senderId   String
+  receiver   User         @relation(fields: [receiverId], references: [id], onDelete: Cascade, name: "receiver")
+  receiverId String
+  project    Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId  String
+  status     InviteStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+
+  @@id([senderId, receiverId])
+  @@map("projectInvites")
 }
