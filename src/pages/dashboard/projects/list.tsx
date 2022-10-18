@@ -1,4 +1,3 @@
-import Layout from '@/components/Layout'
 import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
 import {
@@ -25,7 +24,7 @@ import {
 } from '@tabler/icons'
 import Link from 'next/link'
 
-import { ReactElement, useState } from 'react'
+import { useState } from 'react'
 
 const ListProjectsPage: NextPageWithLayout = () => {
   const [projectToDelete, setProjectToDelete] = useState<string>('')
@@ -160,10 +159,6 @@ const ListProjectsPage: NextPageWithLayout = () => {
       </Container>
     </>
   )
-}
-
-ListProjectsPage.getLayout = function getLayout(page: ReactElement) {
-  return <Layout>{page}</Layout>
 }
 
 export default ListProjectsPage

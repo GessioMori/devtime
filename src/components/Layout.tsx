@@ -3,7 +3,6 @@ import {
   Burger,
   Group,
   Header,
-  Loader,
   MediaQuery,
   Navbar,
   NavLink,
@@ -16,44 +15,18 @@ import {
   IconListCheck,
   IconTerminal2
 } from '@tabler/icons'
-import { useSession } from 'next-auth/react'
+import { Session } from 'next-auth'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import { ReactNode, useState } from 'react'
 import { UserCard } from './UserCard'
 
 interface LayoutProps {
   children: ReactNode
+  sessionData: Session | null
 }
 
-interface user {
-  name: string | null | undefined
-  email: string | null | undefined
-  image: string | null | undefined
-}
-
-export default function Layout({ children }: LayoutProps) {
-  const router = useRouter()
+export default function Layout({ children, sessionData }: LayoutProps) {
   const [opened, setOpened] = useState(false)
-  const { data, status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      router.push('/')
-    }
-  })
-
-  console.log('LAYOUT RENDERED')
-
-  // check if this is valid
-  if (status === 'loading') {
-    return <Loader />
-  }
-
-  const user: user = {
-    name: data?.user?.name,
-    email: data?.user?.email,
-    image: data?.user?.image
-  }
 
   return (
     <AppShell
@@ -136,9 +109,9 @@ export default function Layout({ children }: LayoutProps) {
             <MediaQuery largerThan={'sm'} styles={{ display: 'none' }}>
               <UserCard
                 direction="right"
-                username={user.name}
-                imageUrl={user.image}
-                email={user.email}
+                username={sessionData?.user?.name}
+                imageUrl={sessionData?.user?.image}
+                email={sessionData?.user?.email}
               />
             </MediaQuery>
           </Navbar.Section>
@@ -172,9 +145,9 @@ export default function Layout({ children }: LayoutProps) {
             <MediaQuery smallerThan={'sm'} styles={{ display: 'none' }}>
               <UserCard
                 direction="down"
-                username={user.name}
-                imageUrl={user.image}
-                email={user.email}
+                username={sessionData?.user?.name}
+                imageUrl={sessionData?.user?.image}
+                email={sessionData?.user?.email}
               />
             </MediaQuery>
           </div>

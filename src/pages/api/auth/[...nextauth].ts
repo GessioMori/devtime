@@ -26,7 +26,7 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async session({ session, user }) {
-      console.log('___________________ NEW SESSION REQUEST _________________')
+      console.log(`NEW SESSION REQUEST AT: ${new Date().toLocaleTimeString()}`)
       if (session.user) {
         session.user.id = user.id
         session.user.githubId = user.githubId

@@ -1,11 +1,10 @@
-import Layout from '@/components/Layout'
 import { NotificationBox } from '@/components/NotificationBox'
 import { CreateTask } from '@/components/tasks/CreateTask'
 import { CurrentTask } from '@/components/tasks/CurrentTask'
 import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
 import { Stack } from '@mantine/core'
-import { ReactElement, useState } from 'react'
+import { useState } from 'react'
 
 const Tasks: NextPageWithLayout = () => {
   const [showNotification, setShowNotification] = useState<
@@ -52,10 +51,6 @@ const Tasks: NextPageWithLayout = () => {
       </Stack>
     </Stack>
   )
-}
-
-Tasks.getLayout = function getLayout(page: ReactElement) {
-  return <Layout>{page}</Layout>
 }
 
 export default Tasks

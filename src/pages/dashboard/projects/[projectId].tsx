@@ -1,10 +1,8 @@
-import Layout from '@/components/Layout'
 import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
 import { Center, Container, Loader } from '@mantine/core'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import type { ReactElement } from 'react'
 import { z } from 'zod'
 
 const ProjectDetailsPage: NextPageWithLayout<{ projectId: string }> = ({
@@ -27,10 +25,6 @@ const ProjectDetailsPage: NextPageWithLayout<{ projectId: string }> = ({
   }
 
   return <Container>{JSON.stringify(data)}</Container>
-}
-
-ProjectDetailsPage.getLayout = function getLayout(page: ReactElement) {
-  return <Layout>{page}</Layout>
 }
 
 export default ProjectDetailsPage

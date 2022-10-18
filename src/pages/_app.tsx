@@ -1,3 +1,4 @@
+import { Auth } from '@/components/Auth'
 import { defaultTheme } from '@/styles/theme'
 import { trpc } from '@/utils/trpc'
 import { MantineProvider } from '@mantine/core'
@@ -10,6 +11,7 @@ import { ReactElement, ReactNode } from 'react'
 
 export type NextPageWithLayout<P = unknown, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode
+  public?: boolean
 }
 
 type AppPropsWithLayoutAndContext = AppProps<{ session: Session }> & {
@@ -17,7 +19,6 @@ type AppPropsWithLayoutAndContext = AppProps<{ session: Session }> & {
 }
 
 const App = ({ Component, pageProps }: AppPropsWithLayoutAndContext) => {
-  const getLayout = Component.getLayout ?? ((page) => page)
   return (
     <>
       <Head>
@@ -29,7 +30,13 @@ const App = ({ Component, pageProps }: AppPropsWithLayoutAndContext) => {
       </Head>
       <SessionProvider session={pageProps.session}>
         <MantineProvider withGlobalStyles withNormalizeCSS theme={defaultTheme}>
-          {getLayout(<Component {...pageProps} />)}
+          {Component.public ? (
+            <Component {...pageProps} />
+          ) : (
+            <Auth>
+              <Component {...pageProps} />
+            </Auth>
+          )}
         </MantineProvider>
       </SessionProvider>
     </>

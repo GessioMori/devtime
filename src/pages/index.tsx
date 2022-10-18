@@ -4,13 +4,17 @@ import { Group } from '@mantine/core'
 import { GetServerSideProps } from 'next'
 import { unstable_getServerSession } from 'next-auth/next'
 
-export default function IndexPage() {
+const IndexPage = () => {
   return (
     <Group mt={50} position="center">
       <SignIn />
     </Group>
   )
 }
+
+IndexPage.public = true
+
+export default IndexPage
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await unstable_getServerSession(

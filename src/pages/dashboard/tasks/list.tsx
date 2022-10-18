@@ -1,4 +1,3 @@
-import Layout from '@/components/Layout'
 import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
 import {
@@ -21,8 +20,6 @@ import {
 } from '@tabler/icons'
 import { format } from 'date-fns'
 import Link from 'next/link'
-
-import type { ReactElement } from 'react'
 
 const ListTasks: NextPageWithLayout = () => {
   const { data: tasks } = trpc.tasks.getTasks.useQuery()
@@ -122,10 +119,6 @@ const ListTasks: NextPageWithLayout = () => {
       </Table>
     </Container>
   )
-}
-
-ListTasks.getLayout = function getLayout(page: ReactElement) {
-  return <Layout>{page}</Layout>
 }
 
 export default ListTasks
