@@ -42,12 +42,6 @@ export const projectsRouter = (t: T) =>
         throw new TRPCError({ code: 'UNAUTHORIZED' })
       }
 
-      const ownProjects = await ctx.prisma.project.findMany({
-        where: {
-          ownerId: ctx.session.user.id
-        }
-      })
-
       const allProjects = await ctx.prisma.project.findMany({
         where: {
           users: {
@@ -119,13 +113,20 @@ export const projectsRouter = (t: T) =>
           tasks: project.tasks.map((task) => {
             return {
               ...task,
-              ownerName: project.users.find(
+              taskOwnerName: project.users.find(
                 (user) => user.user.id === task.userId
               )?.user.name,
-              isOwner: task.userId === ctx.session?.user?.id
+              isTaskOwner: task.userId === ctx.session?.user?.id
             }
           }),
-          isProjectOwner: project.ownerId === ctx.session?.user?.id
+          isProjectOwner: project.ownerId === ctx.session?.user?.id,
+          users: project.users.map((user) => {
+            return {
+              isProjectOwner: user.isOwner,
+              asignedAt: user.assignedAt,
+              ...user.user
+            }
+          })
         }
         return mappedProject
       })

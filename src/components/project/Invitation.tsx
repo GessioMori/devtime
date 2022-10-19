@@ -1,9 +1,9 @@
 import { trpc } from '@/utils/trpc'
 import { Button, Container, Group, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { IconAt, IconSend } from '@tabler/icons'
+import { IconAt, IconCheck, IconSend } from '@tabler/icons'
 import { TRPCErrorShape } from '@trpc/server/rpc'
-import { FunctionComponent } from 'react'
+import { FunctionComponent, useState } from 'react'
 import { z } from 'zod'
 
 interface InvitationProps {
@@ -24,23 +24,28 @@ export const Invitation: FunctionComponent<InvitationProps> = ({
           : null
     }
   })
+  const [success, setSuccess] = useState<boolean>(false)
 
   const makeInvitationMutation = trpc.invites.createInvitation.useMutation()
 
   const makeInvitation = async () => {
     await makeInvitationMutation
       .mutateAsync({ projectId, receiverEmail: form.values.email })
-      .then((invite) => console.log(invite))
+      .then(() => {
+        form.reset()
+        setSuccess(true)
+        setTimeout(() => setSuccess(false), 1000)
+      })
       .catch((err: TRPCErrorShape) => form.setErrors({ email: err.message }))
   }
 
   return (
-    <Container>
+    <Container p={0}>
       <form
         onSubmit={form.onSubmit(() => makeInvitation())}
         style={{ width: '100%' }}
       >
-        <Group>
+        <Group align={'flex-start'}>
           <TextInput
             placeholder="Email to send invitation"
             icon={<IconAt size={14} />}
@@ -49,10 +54,10 @@ export const Invitation: FunctionComponent<InvitationProps> = ({
           />
           <Button
             type="submit"
-            leftIcon={<IconSend />}
+            leftIcon={success ? <IconCheck /> : <IconSend />}
             loading={makeInvitationMutation.isLoading}
           >
-            Invite
+            {success ? 'Invite sent!' : 'Invite'}
           </Button>
         </Group>
       </form>

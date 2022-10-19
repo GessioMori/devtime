@@ -49,7 +49,7 @@ export const invitesRouter = (t: T) =>
         if (!receiver) {
           throw new TRPCError({
             code: 'NOT_FOUND',
-            message: 'Receiver not found.'
+            message: 'User not found.'
           })
         }
 
