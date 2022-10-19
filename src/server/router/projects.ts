@@ -60,6 +60,19 @@ export const projectsRouter = (t: T) =>
 
       return allProjects
     }),
+    listOwnProjects: t.procedure.query(async ({ ctx }) => {
+      if (!ctx.session || !ctx.session.user || !ctx.session.user.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const projects = await ctx.prisma.project.findMany({
+        where: {
+          ownerId: ctx.session.user.id
+        }
+      })
+
+      return projects
+    }),
     deleteProject: t.procedure
       .input(z.string().cuid())
       .mutation(async ({ ctx, input: projectId }) => {

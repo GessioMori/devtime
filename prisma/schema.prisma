@@ -21,8 +21,8 @@ model User {
   sessions        Session[]
   tasks           Task[]
   projects        UsersOnProjects[]
-  invitesSent     ProjectInvites[]  @relation(name: "sender")
-  invitesReceived ProjectInvites[]  @relation(name: "receiver")
+  invitesReceived ProjectInvites[]  @relation(name: "invitation")
+  projectsOwned   Project[]
 
   @@map("users")
 }
@@ -71,8 +71,7 @@ model Task {
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   project         Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
-  @@index([userId])
-  @@index([projectId])
+  @@index([userId, projectId])
   @@map("tasks")
 }
 
@@ -87,7 +86,9 @@ model Project {
   tasks         Task[]
   users         UsersOnProjects[]
   invites       ProjectInvites[]
+  owner         User              @relation(fields: [ownerId], references: [id])
 
+  @@index([ownerId])
   @@map("projects")
 }
 
@@ -111,14 +112,13 @@ enum InviteStatus {
 
 model ProjectInvites {
   id         String       @id @default(cuid())
-  sender     User         @relation(fields: [senderId], references: [id], onDelete: Cascade, name: "sender")
-  senderId   String
-  receiver   User         @relation(fields: [receiverId], references: [id], onDelete: Cascade, name: "receiver")
+  receiver   User         @relation(fields: [receiverId], references: [id], onDelete: Cascade, name: "invitation")
   receiverId String
   project    Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId  String
   status     InviteStatus @default(PENDING)
   createdAt  DateTime     @default(now())
 
+  @@index([receiverId, projectId])
   @@map("projectInvites")
 }

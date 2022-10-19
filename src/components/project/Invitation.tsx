@@ -52,7 +52,7 @@ export const Invitation: FunctionComponent<InvitationProps> = ({
             leftIcon={<IconSend />}
             loading={makeInvitationMutation.isLoading}
           >
-            Send
+            Invite
           </Button>
         </Group>
       </form>

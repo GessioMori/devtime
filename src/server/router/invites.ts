@@ -37,7 +37,7 @@ export const invitesRouter = (t: T) =>
           })
         }
 
-        const receiver = await ctx.prisma.user.findFirst({
+        const receiver = await ctx.prisma.user.findUnique({
           where: {
             email: input.receiverEmail
           },
@@ -73,7 +73,6 @@ export const invitesRouter = (t: T) =>
 
         const newInvite = await ctx.prisma.projectInvites.create({
           data: {
-            senderId: ctx.session.user.id,
             receiverId: receiver.id,
             projectId: input.projectId
           }

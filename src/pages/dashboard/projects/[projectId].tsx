@@ -255,6 +255,7 @@ const ProjectDetailsPage: NextPageWithLayout<{ projectId: string }> = ({
           Users
         </Title>
         <Space h={'md'} />
+        {project?.id && <Invitation projectId={project?.id} />}
 
         <Table
           verticalSpacing={'sm'}
@@ -282,7 +283,7 @@ const ProjectDetailsPage: NextPageWithLayout<{ projectId: string }> = ({
           <tbody>{usersRows}</tbody>
         </Table>
       </Container>
-      {project?.id && <Invitation projectId={project?.id} />}
+
       {project?.tasks && project.tasks.length > 0 && (
         <Container>
           <Space h={'xl'} />
