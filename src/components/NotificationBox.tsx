@@ -21,6 +21,8 @@ export const NotificationBox: FunctionComponent<NotificationBoxProps> = ({
       color={type === 'success' ? 'teal' : 'red'}
       title={title}
       onClose={onClose}
+      closeButtonProps={{ 'aria-label': 'Hide notification' }}
+      sx={{ position: 'fixed', bottom: '1rem', right: '1rem' }}
     >
       {content}
     </Notification>

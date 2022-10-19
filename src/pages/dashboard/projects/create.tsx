@@ -42,7 +42,11 @@ const CreateProject: NextPageWithLayout = () => {
   }
 
   return (
-    <Stack align={'flex-end'} justify={'space-between'} sx={{ height: '100%' }}>
+    <Stack
+      align={'flex-end'}
+      justify={'space-between'}
+      sx={{ minHeight: '100%' }}
+    >
       <form
         onSubmit={form.onSubmit(() => createNewProject())}
         style={{ width: '100%' }}
