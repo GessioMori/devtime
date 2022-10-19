@@ -11,12 +11,14 @@ import {
   Modal,
   Stack,
   Table,
-  Text
+  Text,
+  Title
 } from '@mantine/core'
 import {
   IconArrowBack,
   IconBrandGithub,
   IconCircleX,
+  IconDoorExit,
   IconDots,
   IconPencil,
   IconTerminal2,
@@ -28,9 +30,13 @@ import { useState } from 'react'
 
 const ListProjectsPage: NextPageWithLayout = () => {
   const [projectToDelete, setProjectToDelete] = useState<string>('')
+  const [projectToLeave, setProjectToLeave] = useState<string>('')
 
-  const { data: projects } = trpc.projects.listProjects.useQuery()
+  const { data: projects, isLoading } = trpc.projects.listProjects.useQuery()
+
   const deleteProjectMutation = trpc.projects.deleteProject.useMutation()
+
+  const leaveProjectMutation = trpc.projects.leaveProject.useMutation()
 
   const deleteProject = async (projectId: string) => {
     await deleteProjectMutation.mutateAsync(projectId).then(() => {
@@ -40,6 +46,32 @@ const ListProjectsPage: NextPageWithLayout = () => {
         1
       )
     })
+  }
+
+  const leaveProject = async (projectId: string) => {
+    await leaveProjectMutation.mutateAsync({ projectId }).then(() => {
+      setProjectToLeave('')
+      projects?.splice(
+        projects.findIndex((project) => projectId === project.id),
+        1
+      )
+    })
+  }
+
+  if (isLoading) {
+    return (
+      <Center p={'xl'}>
+        <Loader variant="bars" color={'cyan'} />
+      </Center>
+    )
+  }
+
+  if (projects && projects.length === 0) {
+    return (
+      <Title order={3} align={'center'}>
+        You aren&apos;t asigned to any project. Create a new one!
+      </Title>
+    )
   }
 
   const rows = projects ? (
@@ -65,7 +97,7 @@ const ListProjectsPage: NextPageWithLayout = () => {
                   See project details
                 </Menu.Item>
               </Link>
-              <Menu.Item icon={<IconPencil />}>Edit project</Menu.Item>
+
               {project.githubRepoUrl && (
                 <Anchor
                   underline={false}
@@ -78,13 +110,26 @@ const ListProjectsPage: NextPageWithLayout = () => {
                   </Menu.Item>
                 </Anchor>
               )}
-              <Menu.Item
-                color={'red.5'}
-                icon={<IconCircleX />}
-                onClick={() => setProjectToDelete(project.id)}
-              >
-                Delete project
-              </Menu.Item>
+              {project.isProjectOwner ? (
+                <>
+                  <Menu.Item icon={<IconPencil />}>Edit project</Menu.Item>
+                  <Menu.Item
+                    color={'red.5'}
+                    icon={<IconCircleX />}
+                    onClick={() => setProjectToDelete(project.id)}
+                  >
+                    Delete project
+                  </Menu.Item>
+                </>
+              ) : (
+                <Menu.Item
+                  color={'red.5'}
+                  icon={<IconDoorExit />}
+                  onClick={() => setProjectToLeave(project.id)}
+                >
+                  Leave project
+                </Menu.Item>
+              )}
             </Menu.Dropdown>
           </Menu>
         </td>
@@ -111,7 +156,7 @@ const ListProjectsPage: NextPageWithLayout = () => {
           <Text inline>
             Are you sure you want to delete &quot;
             {projectToDelete &&
-              (projects?.filter((project) => project.id === projectToDelete)[0]
+              (projects?.find((project) => project.id === projectToDelete)
                 ?.title ||
                 '')}
             &quot; ?
@@ -131,6 +176,43 @@ const ListProjectsPage: NextPageWithLayout = () => {
             </Button>
             <Button
               onClick={() => setProjectToDelete('')}
+              leftIcon={<IconArrowBack />}
+              fullWidth
+            >
+              Cancel
+            </Button>
+          </Stack>
+        </Stack>
+      </Modal>
+      <Modal
+        opened={!!projectToLeave}
+        onClose={() => setProjectToLeave('')}
+        withCloseButton={false}
+      >
+        <Stack>
+          <Text inline>
+            Are you sure you want to delete &quot;
+            {projectToLeave &&
+              (projects?.find((project) => project.id === projectToLeave)
+                ?.title ||
+                '')}
+            &quot; ?
+          </Text>
+          <Text color={'dimmed'} inline>
+            (This action can not be undone)
+          </Text>
+          <Stack spacing={'xs'}>
+            <Button
+              color={'red'}
+              fullWidth
+              loading={deleteProjectMutation.status === 'loading'}
+              onClick={() => leaveProject(projectToLeave)}
+              leftIcon={<IconDoorExit />}
+            >
+              Leave
+            </Button>
+            <Button
+              onClick={() => setProjectToLeave('')}
               leftIcon={<IconArrowBack />}
               fullWidth
             >

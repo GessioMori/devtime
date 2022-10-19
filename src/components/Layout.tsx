@@ -11,7 +11,6 @@ import {
 import {
   IconChartBar,
   IconCodeCircle2,
-  IconHome,
   IconListCheck,
   IconTerminal2
 } from '@tabler/icons'
@@ -40,13 +39,6 @@ export default function Layout({ children, sessionData }: LayoutProps) {
           width={{ sm: 200, lg: 300 }}
         >
           <Navbar.Section grow>
-            <Link href={'/dashboard'}>
-              <NavLink
-                icon={<IconHome />}
-                label="Home"
-                onClick={() => setOpened((o) => !o)}
-              />
-            </Link>
             <NavLink
               icon={<IconListCheck />}
               label="Tasks"

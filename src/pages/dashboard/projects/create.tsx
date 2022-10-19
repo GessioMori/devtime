@@ -98,24 +98,21 @@ const CreateProject: NextPageWithLayout = () => {
           </Stack>
         </Stack>
       </form>
-      <Stack px={'lg'}>
-        {showNotification && (
-          <NotificationBox
-            title={
-              showNotification === 'success' ? 'Project created!' : 'Error!'
-            }
-            type={showNotification}
-            content={
-              showNotification === 'success'
-                ? 'Now you can assign a task to this project!'
-                : 'Some error occurred, try again!'
-            }
-            onClose={() => {
-              setShowNotification(undefined)
-            }}
-          />
-        )}
-      </Stack>
+
+      {showNotification && (
+        <NotificationBox
+          title={showNotification === 'success' ? 'Project created!' : 'Error!'}
+          type={showNotification}
+          content={
+            showNotification === 'success'
+              ? 'Now you can assign a task to this project!'
+              : 'Some error occurred, try again!'
+          }
+          onClose={() => {
+            setShowNotification(undefined)
+          }}
+        />
+      )}
     </Stack>
   )
 }

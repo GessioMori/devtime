@@ -52,7 +52,14 @@ export const projectsRouter = (t: T) =>
         }
       })
 
-      return allProjects
+      const mappedProjects = allProjects.map((project) => {
+        return {
+          ...project,
+          isProjectOwner: project.ownerId === ctx.session?.user?.id
+        }
+      })
+
+      return mappedProjects
     }),
     listOwnProjects: t.procedure.query(async ({ ctx }) => {
       if (!ctx.session || !ctx.session.user || !ctx.session.user.id) {
@@ -129,5 +136,56 @@ export const projectsRouter = (t: T) =>
           })
         }
         return mappedProject
+      }),
+    leaveProject: t.procedure
+      .input(
+        z.object({
+          projectId: z.string().cuid()
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.session || !ctx.session.user || !ctx.session.user.id) {
+          throw new TRPCError({ code: 'UNAUTHORIZED' })
+        }
+
+        const project = await ctx.prisma.project.findUnique({
+          where: {
+            id: input.projectId
+          }
+        })
+
+        if (!project) {
+          throw new TRPCError({ code: 'NOT_FOUND' })
+        }
+        if (project.ownerId === ctx.session.user.id) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'The owner can not leave a project, delete it instead.'
+          })
+        }
+
+        await ctx.prisma.usersOnProjects.delete({
+          where: {
+            userId_projectId: {
+              projectId: project.id,
+              userId: ctx.session.user.id
+            }
+          }
+        })
+
+        const invite = await ctx.prisma.projectInvites.findFirst({
+          where: {
+            projectId: project.id,
+            receiverId: ctx.session.user.id
+          }
+        })
+
+        await ctx.prisma.projectInvites.delete({
+          where: {
+            id: invite?.id
+          }
+        })
+
+        return true
       })
   })

@@ -1,7 +1,15 @@
 import { NotificationBox } from '@/components/NotificationBox'
 import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
-import { ActionIcon, Center, Group, Loader, Table, Text } from '@mantine/core'
+import {
+  ActionIcon,
+  Center,
+  Group,
+  Loader,
+  Table,
+  Text,
+  Title
+} from '@mantine/core'
 import { IconTerminal2, IconThumbDown, IconThumbUp } from '@tabler/icons'
 import { useState } from 'react'
 
@@ -22,6 +30,14 @@ const Invites: NextPageWithLayout = () => {
       <Center p={'xl'}>
         <Loader variant="bars" color={'cyan'} />
       </Center>
+    )
+  }
+
+  if (invites && invites.length === 0) {
+    return (
+      <Title order={3} align={'center'}>
+        You don&apos;t have project invites.
+      </Title>
     )
   }
 
