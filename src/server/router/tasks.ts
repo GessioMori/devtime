@@ -8,7 +8,7 @@ export const tasksRouter = (t: T) =>
     createTask: t.procedure
       .input(
         z.object({
-          title: z.string().min(10),
+          title: z.string().min(5).max(100),
           description: z.string().optional(),
           projectId: z.string().cuid().optional()
         })
@@ -17,6 +17,8 @@ export const tasksRouter = (t: T) =>
         if (!ctx.session || !ctx.session.user?.id) {
           throw new TRPCError({ code: 'UNAUTHORIZED' })
         }
+
+        console.log('PROJECT ID: ', input.projectId)
 
         const newTask = await ctx.prisma.task.create({
           data: {

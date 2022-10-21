@@ -96,13 +96,13 @@ export const CurrentTask: FunctionComponent<CurrentTaskProps> = ({
       >
         <Stack>
           <Text>
-            {currentTask.projectId
+            {currentTask.project?.githubRepoUrl
               ? 'Do you want to assing a commit to this task?'
               : 'Confirm finishing this task?'}
           </Text>
 
           <Stack spacing={'xs'}>
-            {!isShowCommits && currentTask.projectId && (
+            {!isShowCommits && currentTask.project?.githubRepoUrl && (
               <Button fullWidth onClick={handleShowCommits}>
                 Yes, choose a commit from project repository
               </Button>
@@ -142,10 +142,12 @@ export const CurrentTask: FunctionComponent<CurrentTaskProps> = ({
               loading={isLoadingMutation}
               fullWidth
               leftIcon={
-                !isShowCommits && currentTask.projectId ? null : <IconCheck />
+                !isShowCommits && currentTask.project?.githubRepoUrl ? null : (
+                  <IconCheck />
+                )
               }
             >
-              {!isShowCommits && currentTask.projectId
+              {!isShowCommits && currentTask.project?.githubRepoUrl
                 ? 'No, just finish the task'
                 : 'Finish the task'}
             </Button>

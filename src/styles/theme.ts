@@ -32,14 +32,10 @@ export const defaultTheme: MantineThemeOverride = {
 
 export const useStyles = createStyles((theme) => ({
   responsiveTimer: {
-    fontSize: '500%',
+    fontSize: 'clamp(2rem, 4vw, 8rem)',
     color: theme.colors.cyan[3],
     backgroundColor: theme.colors.dark[6],
-    borderRadius: '8px',
-
-    [theme.fn.smallerThan('sm')]: {
-      fontSize: '300%'
-    }
+    borderRadius: '8px'
   },
   taskInfo: {
     fontSize: theme.fontSizes.lg,

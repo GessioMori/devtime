@@ -3,7 +3,7 @@ import { CreateTask } from '@/components/tasks/CreateTask'
 import { CurrentTask } from '@/components/tasks/CurrentTask'
 import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
-import { Stack } from '@mantine/core'
+import { Container } from '@mantine/core'
 import { useState } from 'react'
 
 const Tasks: NextPageWithLayout = () => {
@@ -26,30 +26,32 @@ const Tasks: NextPageWithLayout = () => {
 
   if (currentTask) {
     return (
-      <CurrentTask currentTask={currentTask} handleRefetch={handleRefetch} />
+      <Container>
+        <CurrentTask currentTask={currentTask} handleRefetch={handleRefetch} />
+      </Container>
     )
   }
 
   return (
-    <Stack align={'flex-end'} justify={'space-between'} sx={{ height: '100%' }}>
-      <CreateTask handleRefetch={handleRefetch} />
-      <Stack px={'lg'}>
-        {showNotification && (
-          <NotificationBox
-            title={showNotification === 'success' ? 'Task completed!' : 'Oops!'}
-            type={showNotification}
-            content={
-              showNotification === 'success'
-                ? 'You can start a new one now.'
-                : 'Some error occurred, try again!'
-            }
-            onClose={() => {
-              setShowNotification(undefined)
-            }}
-          />
-        )}
-      </Stack>
-    </Stack>
+    <>
+      <Container>
+        <CreateTask handleRefetch={handleRefetch} />
+      </Container>
+      {showNotification && (
+        <NotificationBox
+          title={showNotification === 'success' ? 'Task completed!' : 'Oops!'}
+          type={showNotification}
+          content={
+            showNotification === 'success'
+              ? 'You can start a new one now.'
+              : 'Some error occurred, try again!'
+          }
+          onClose={() => {
+            setShowNotification(undefined)
+          }}
+        />
+      )}
+    </>
   )
 }
 

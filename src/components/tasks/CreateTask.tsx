@@ -20,7 +20,11 @@ export const CreateTask: FunctionComponent<CreateTaskProps> = ({
 
     validate: {
       title: (value) =>
-        value.length < 10 ? 'Name must have at least 10 letters' : null
+        value.length < 5
+          ? 'Task title must have at least 5 characters'
+          : value.length > 100
+          ? 'Task title must have at most 100 characters'
+          : null
     }
   })
 

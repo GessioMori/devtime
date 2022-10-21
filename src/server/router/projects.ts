@@ -173,16 +173,12 @@ export const projectsRouter = (t: T) =>
           }
         })
 
-        const invite = await ctx.prisma.projectInvites.findFirst({
-          where: {
-            projectId: project.id,
-            receiverId: ctx.session.user.id
-          }
-        })
-
         await ctx.prisma.projectInvites.delete({
           where: {
-            id: invite?.id
+            receiverId_projectId: {
+              projectId: project.id,
+              receiverId: ctx.session.user.id
+            }
           }
         })
 

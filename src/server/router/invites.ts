@@ -101,7 +101,7 @@ export const invitesRouter = (t: T) =>
     handleInvitation: t.procedure
       .input(
         z.object({
-          inviteId: z.string().cuid(),
+          projectId: z.string().cuid(),
           status: z.enum(['ACCEPTED', 'REJECTED'])
         })
       )
@@ -112,7 +112,10 @@ export const invitesRouter = (t: T) =>
 
         const invite = await ctx.prisma.projectInvites.findUnique({
           where: {
-            id: input.inviteId
+            receiverId_projectId: {
+              projectId: input.projectId,
+              receiverId: ctx.session.user.id
+            }
           }
         })
 
@@ -120,16 +123,21 @@ export const invitesRouter = (t: T) =>
           throw new TRPCError({ code: 'NOT_FOUND' })
         }
 
-        await ctx.prisma.usersOnProjects.create({
-          data: {
-            projectId: invite.projectId,
-            userId: ctx.session.user.id
-          }
-        })
+        if (input.status === 'ACCEPTED') {
+          await ctx.prisma.usersOnProjects.create({
+            data: {
+              projectId: invite.projectId,
+              userId: ctx.session.user.id
+            }
+          })
+        }
 
         const updatedInvite = await ctx.prisma.projectInvites.update({
           where: {
-            id: invite.id
+            receiverId_projectId: {
+              projectId: invite.projectId,
+              receiverId: invite.receiverId
+            }
           },
           data: {
             status: input.status

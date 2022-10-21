@@ -11,6 +11,7 @@ import {
   Title
 } from '@mantine/core'
 import { IconTerminal2, IconThumbDown, IconThumbUp } from '@tabler/icons'
+import Link from 'next/link'
 import { useState } from 'react'
 
 const Invites: NextPageWithLayout = () => {
@@ -33,20 +34,12 @@ const Invites: NextPageWithLayout = () => {
     )
   }
 
-  if (invites && invites.length === 0) {
-    return (
-      <Title order={3} align={'center'}>
-        You don&apos;t have project invites.
-      </Title>
-    )
-  }
-
   const handleInvitationAnswer = async (
-    inviteId: string,
+    projectId: string,
     status: 'ACCEPTED' | 'REJECTED'
   ) => {
     await handleInvitationAnswerMutation
-      .mutateAsync({ inviteId, status })
+      .mutateAsync({ projectId, status })
       .then(() => {
         setShowNotification('success')
       })
@@ -55,14 +48,14 @@ const Invites: NextPageWithLayout = () => {
       })
       .finally(() => {
         invites?.splice(
-          invites.findIndex((invite) => inviteId === invite.id),
+          invites.findIndex((invite) => projectId === invite.projectId),
           1
         )
       })
   }
 
   const rows = invites?.map((invite) => (
-    <tr key={invite.id}>
+    <tr key={invite.projectId}>
       <td>{invite.project.title}</td>
       <td>{invite.createdAt.toLocaleString()}</td>
 
@@ -71,7 +64,7 @@ const Invites: NextPageWithLayout = () => {
           <ActionIcon
             onClick={() => {
               setOption('ACCEPTED')
-              handleInvitationAnswer(invite.id, 'ACCEPTED')
+              handleInvitationAnswer(invite.projectId, 'ACCEPTED')
             }}
             loading={handleInvitationAnswerMutation.isLoading}
             size="xl"
@@ -83,7 +76,7 @@ const Invites: NextPageWithLayout = () => {
           <ActionIcon
             onClick={() => {
               setOption('REJECTED')
-              handleInvitationAnswer(invite.id, 'REJECTED')
+              handleInvitationAnswer(invite.projectId, 'REJECTED')
             }}
             loading={handleInvitationAnswerMutation.isLoading}
             color="red"
@@ -92,9 +85,16 @@ const Invites: NextPageWithLayout = () => {
           >
             <IconThumbDown />
           </ActionIcon>
-          <ActionIcon color="gray" size="xl" variant="outline">
-            <IconTerminal2 />
-          </ActionIcon>
+          <Link
+            href={`/dashboard/projects/${invite.projectId}`}
+            aria-details="Go to"
+          >
+            <a>
+              <ActionIcon color="gray" size="xl" variant="outline">
+                <IconTerminal2 />
+              </ActionIcon>
+            </a>
+          </Link>
         </Group>
       </td>
     </tr>
@@ -102,37 +102,43 @@ const Invites: NextPageWithLayout = () => {
 
   return (
     <>
-      <Group grow position="center">
-        <Group
-          grow
-          style={{
-            whiteSpace: 'nowrap',
-            overflowX: 'auto',
-            maxWidth: '920px'
-          }}
-        >
-          <Table
-            verticalSpacing={'sm'}
-            highlightOnHover={true}
-            align={'center'}
+      {invites && invites.length === 0 ? (
+        <Title order={3} align={'center'}>
+          You don&apos;t have project invites.
+        </Title>
+      ) : (
+        <Group grow position="center">
+          <Group
+            grow
+            style={{
+              whiteSpace: 'nowrap',
+              overflowX: 'auto',
+              maxWidth: '920px'
+            }}
           >
-            <thead>
-              <tr>
-                <th>
-                  <Text>Title</Text>
-                </th>
-                <th>
-                  <Text>Invited at</Text>
-                </th>
-                <th>
-                  <Text></Text>
-                </th>
-              </tr>
-            </thead>
-            <tbody>{rows}</tbody>
-          </Table>
+            <Table
+              verticalSpacing={'sm'}
+              highlightOnHover={true}
+              align={'center'}
+            >
+              <thead>
+                <tr>
+                  <th>
+                    <Text>Title</Text>
+                  </th>
+                  <th>
+                    <Text>Invited at</Text>
+                  </th>
+                  <th>
+                    <Text></Text>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>{rows}</tbody>
+            </Table>
+          </Group>
         </Group>
-      </Group>
+      )}
 
       {showNotification && (
         <NotificationBox
@@ -148,12 +154,16 @@ const Invites: NextPageWithLayout = () => {
             showNotification === 'success'
               ? option === 'ACCEPTED'
                 ? 'Now you can assign a task to this project!'
-                : 'If you want to be invited again for this project, review your rejections.'
+                : 'If you want to be invited again for this project, review your rejections in settings.'
               : 'Some error occurred, try again!'
           }
           onClose={() => {
             setShowNotification(undefined)
           }}
+          icon={
+            showNotification === 'success' &&
+            option === 'REJECTED' && <IconThumbDown size={18} />
+          }
         />
       )}
     </>

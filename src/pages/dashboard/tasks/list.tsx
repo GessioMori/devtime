@@ -12,7 +12,8 @@ import {
   Popover,
   Stack,
   Table,
-  Text
+  Text,
+  Title
 } from '@mantine/core'
 import {
   IconArrowBack,
@@ -28,7 +29,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 const ListTasks: NextPageWithLayout = () => {
-  const { data: tasks } = trpc.tasks.getTasks.useQuery()
+  const { data: tasks, isLoading } = trpc.tasks.getTasks.useQuery()
   const deleteTaskMutation = trpc.tasks.deleteTask.useMutation()
 
   const [taskToDelete, setTaskToDelete] = useState<string>('')
@@ -43,10 +44,19 @@ const ListTasks: NextPageWithLayout = () => {
     })
   }
 
-  const rows = tasks ? (
+  if (isLoading) {
+    return (
+      <Center>
+        <Loader color="cyan" variant="bars" />
+      </Center>
+    )
+  }
+
+  const rows =
+    tasks &&
     tasks.map((task) => (
       <tr key={task.id} style={{ whiteSpace: 'nowrap' }}>
-        <td style={{ cursor: 'pointer' }}>
+        <td style={{ cursor: 'pointer', whiteSpace: 'normal' }}>
           <Popover position={'bottom-start'}>
             <Popover.Target>
               <Text>{task.title}</Text>
@@ -102,15 +112,6 @@ const ListTasks: NextPageWithLayout = () => {
         </td>
       </tr>
     ))
-  ) : (
-    <tr>
-      <td colSpan={4}>
-        <Center>
-          <Loader color="cyan" variant="bars" />
-        </Center>
-      </td>
-    </tr>
-  )
 
   return (
     <>
@@ -151,38 +152,44 @@ const ListTasks: NextPageWithLayout = () => {
           </Stack>
         </Stack>
       </Modal>
-      <Container>
-        <Table
-          verticalSpacing={'sm'}
-          highlightOnHover={true}
-          horizontalSpacing={'xs'}
-          style={{
-            display: 'block',
-            whiteSpace: 'nowrap',
-            overflowX: 'auto'
-          }}
-        >
-          <thead>
-            <tr style={{ whiteSpace: 'nowrap' }}>
-              <th>
-                <Text>Title</Text>
-              </th>
-              <th>
-                <Text>Start</Text>
-              </th>
-              <th>
-                <Text>Duration (h)</Text>
-              </th>
-              <th>
-                <Text>Project</Text>
-              </th>
-              <th style={{ width: '5%' }}>
-                <Text></Text>
-              </th>
-            </tr>
-          </thead>
-          <tbody>{rows}</tbody>
-        </Table>
+      <Container size={960}>
+        {tasks && tasks?.length > 0 ? (
+          <Table
+            verticalSpacing={'sm'}
+            highlightOnHover={true}
+            horizontalSpacing={'xs'}
+            style={{
+              display: 'block',
+
+              overflowX: 'auto'
+            }}
+          >
+            <thead style={{ whiteSpace: 'nowrap' }}>
+              <tr>
+                <th style={{ width: '40%' }}>
+                  <Text>Title</Text>
+                </th>
+                <th>
+                  <Text>Start</Text>
+                </th>
+                <th>
+                  <Text>Duration (h)</Text>
+                </th>
+                <th>
+                  <Text>Project</Text>
+                </th>
+                <th style={{ width: '5%', whiteSpace: 'nowrap' }}>
+                  <Text></Text>
+                </th>
+              </tr>
+            </thead>
+            <tbody>{rows}</tbody>
+          </Table>
+        ) : (
+          <Title order={3} align={'center'}>
+            You don&apos;t have any completed task. Start a new one!
+          </Title>
+        )}
       </Container>
     </>
   )
