@@ -101,6 +101,7 @@ const ProjectDetailsPage: NextPageWithLayout<{ projectId: string }> = ({
           isProjectOwner={project?.isProjectOwner}
           ownerId={project?.ownerId}
           users={project?.users}
+          projectId={project?.id || ''}
         />
         {project?.tasks && project?.tasks.length > 0 && (
           <TasksTable tasks={project.tasks} />

@@ -106,9 +106,16 @@ export const projectsRouter = (t: T) =>
             users: {
               include: {
                 user: true
+              },
+              orderBy: {
+                isOwner: 'desc'
               }
             },
-            tasks: true
+            tasks: {
+              orderBy: {
+                id: 'desc'
+              }
+            }
           }
         })
         if (!project) {
@@ -178,6 +185,61 @@ export const projectsRouter = (t: T) =>
             receiverId_projectId: {
               projectId: project.id,
               receiverId: ctx.session.user.id
+            }
+          }
+        })
+
+        return true
+      }),
+    removeUserFromProject: t.procedure
+      .input(
+        z.object({
+          projectId: z.string().cuid(),
+          userId: z.string().cuid()
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.session || !ctx.session.user || !ctx.session.user.id) {
+          throw new TRPCError({ code: 'UNAUTHORIZED' })
+        }
+
+        const project = await ctx.prisma.project.findUnique({
+          where: {
+            id: input.projectId
+          },
+          include: {
+            users: true
+          }
+        })
+
+        if (
+          !project ||
+          !project.users.some((user) => user.userId === input.userId)
+        ) {
+          throw new TRPCError({ code: 'NOT_FOUND' })
+        }
+
+        if (project.ownerId === input.userId) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'The owner can not leave a project, delete it instead.'
+          })
+        }
+
+        await ctx.prisma.usersOnProjects.delete({
+          where: {
+            userId_projectId: {
+              projectId: project.id,
+              userId: input.userId
+            }
+          }
+        })
+
+        await ctx.prisma.projectInvites.delete({
+          where: {
+            receiverId_projectId: {
+              projectId: project.id,
+              receiverId: input.userId
             }
           }
         })
