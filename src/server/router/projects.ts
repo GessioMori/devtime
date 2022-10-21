@@ -189,6 +189,16 @@ export const projectsRouter = (t: T) =>
           }
         })
 
+        await ctx.prisma.task.updateMany({
+          where: {
+            projectId: project.id,
+            userId: ctx.session.user.id
+          },
+          data: {
+            projectId: null
+          }
+        })
+
         return true
       }),
     removeUserFromProject: t.procedure
@@ -241,6 +251,16 @@ export const projectsRouter = (t: T) =>
               projectId: project.id,
               receiverId: input.userId
             }
+          }
+        })
+
+        await ctx.prisma.task.updateMany({
+          where: {
+            projectId: project.id,
+            userId: input.userId
+          },
+          data: {
+            projectId: null
           }
         })
 
