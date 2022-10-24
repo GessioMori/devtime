@@ -2,10 +2,12 @@ import { prisma } from '@/server/db/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { T } from '.'
+import { authMiddleware } from './middleware'
 
 export const projectsRouter = (t: T) =>
   t.router({
     createProject: t.procedure
+      .use(authMiddleware(t))
       .input(
         z.object({
           title: z.string().min(5),
@@ -14,21 +16,17 @@ export const projectsRouter = (t: T) =>
         })
       )
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.session || !ctx.session.user?.id) {
-          throw new TRPCError({ code: 'UNAUTHORIZED' })
-        }
-
         const newProject = await ctx.prisma.project.create({
           data: {
             title: input.title,
-            ownerId: ctx.session.user?.id,
+            ownerId: ctx.user.id,
             description: input.description,
             githubRepoUrl: input.githubRepoUrl,
 
             users: {
               create: [
                 {
-                  userId: ctx.session.user.id,
+                  userId: ctx.user.id,
                   isOwner: true
                 }
               ]
@@ -37,16 +35,12 @@ export const projectsRouter = (t: T) =>
         })
         return newProject
       }),
-    listProjects: t.procedure.query(async ({ ctx }) => {
-      if (!ctx.session || !ctx.session.user || !ctx.session.user.id) {
-        throw new TRPCError({ code: 'UNAUTHORIZED' })
-      }
-
+    listProjects: t.procedure.use(authMiddleware(t)).query(async ({ ctx }) => {
       const allProjects = await ctx.prisma.project.findMany({
         where: {
           users: {
             some: {
-              userId: ctx.session.user.id
+              userId: ctx.user.id
             }
           }
         }
@@ -55,37 +49,33 @@ export const projectsRouter = (t: T) =>
       const mappedProjects = allProjects.map((project) => {
         return {
           ...project,
-          isProjectOwner: project.ownerId === ctx.session?.user?.id
+          isProjectOwner: project.ownerId === ctx.user.id
         }
       })
 
       return mappedProjects
     }),
-    listOwnProjects: t.procedure.query(async ({ ctx }) => {
-      if (!ctx.session || !ctx.session.user || !ctx.session.user.id) {
-        throw new TRPCError({ code: 'UNAUTHORIZED' })
-      }
+    listOwnProjects: t.procedure
+      .use(authMiddleware(t))
+      .query(async ({ ctx }) => {
+        const projects = await ctx.prisma.project.findMany({
+          where: {
+            ownerId: ctx.user.id
+          }
+        })
 
-      const projects = await ctx.prisma.project.findMany({
-        where: {
-          ownerId: ctx.session.user.id
-        }
-      })
-
-      return projects
-    }),
+        return projects
+      }),
     deleteProject: t.procedure
+      .use(authMiddleware(t))
       .input(z.string().cuid())
       .mutation(async ({ ctx, input: projectId }) => {
-        if (!ctx.session || !ctx.session.user || !ctx.session.user.id) {
-          throw new TRPCError({ code: 'UNAUTHORIZED' })
-        }
         const project = await ctx.prisma.project.findUnique({
           where: { id: projectId }
         })
         if (!project) {
           throw new TRPCError({ code: 'NOT_FOUND' })
-        } else if (project.ownerId !== ctx.session.user.id) {
+        } else if (project.ownerId !== ctx.user.id) {
           throw new TRPCError({ code: 'FORBIDDEN' })
         }
 
@@ -98,6 +88,7 @@ export const projectsRouter = (t: T) =>
         return true
       }),
     getProject: t.procedure
+      .use(authMiddleware(t))
       .input(z.string().cuid())
       .query(async ({ ctx, input: projectId }) => {
         const project = await prisma.project.findUnique({
@@ -130,10 +121,10 @@ export const projectsRouter = (t: T) =>
               taskOwnerName: project.users.find(
                 (user) => user.user.id === task.userId
               )?.user.name,
-              isTaskOwner: task.userId === ctx.session?.user?.id
+              isTaskOwner: task.userId === ctx.user.id
             }
           }),
-          isProjectOwner: project.ownerId === ctx.session?.user?.id,
+          isProjectOwner: project.ownerId === ctx.user.id,
           users: project.users.map((user) => {
             return {
               isProjectOwner: user.isOwner,
@@ -145,16 +136,13 @@ export const projectsRouter = (t: T) =>
         return mappedProject
       }),
     leaveProject: t.procedure
+      .use(authMiddleware(t))
       .input(
         z.object({
           projectId: z.string().cuid()
         })
       )
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.session || !ctx.session.user || !ctx.session.user.id) {
-          throw new TRPCError({ code: 'UNAUTHORIZED' })
-        }
-
         const project = await ctx.prisma.project.findUnique({
           where: {
             id: input.projectId
@@ -164,7 +152,7 @@ export const projectsRouter = (t: T) =>
         if (!project) {
           throw new TRPCError({ code: 'NOT_FOUND' })
         }
-        if (project.ownerId === ctx.session.user.id) {
+        if (project.ownerId === ctx.user.id) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'The owner can not leave a project, delete it instead.'
@@ -175,7 +163,7 @@ export const projectsRouter = (t: T) =>
           where: {
             userId_projectId: {
               projectId: project.id,
-              userId: ctx.session.user.id
+              userId: ctx.user.id
             }
           }
         })
@@ -184,7 +172,7 @@ export const projectsRouter = (t: T) =>
           where: {
             receiverId_projectId: {
               projectId: project.id,
-              receiverId: ctx.session.user.id
+              receiverId: ctx.user.id
             }
           }
         })
@@ -192,7 +180,7 @@ export const projectsRouter = (t: T) =>
         await ctx.prisma.task.updateMany({
           where: {
             projectId: project.id,
-            userId: ctx.session.user.id
+            userId: ctx.user.id
           },
           data: {
             projectId: null
@@ -202,6 +190,7 @@ export const projectsRouter = (t: T) =>
         return true
       }),
     removeUserFromProject: t.procedure
+      .use(authMiddleware(t))
       .input(
         z.object({
           projectId: z.string().cuid(),
@@ -209,10 +198,6 @@ export const projectsRouter = (t: T) =>
         })
       )
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.session || !ctx.session.user || !ctx.session.user.id) {
-          throw new TRPCError({ code: 'UNAUTHORIZED' })
-        }
-
         const project = await ctx.prisma.project.findUnique({
           where: {
             id: input.projectId

@@ -2,10 +2,12 @@ import { TRPCError } from '@trpc/server'
 import { intervalToDuration } from 'date-fns'
 import { z } from 'zod'
 import { T } from '.'
+import { authMiddleware } from './middleware'
 
 export const tasksRouter = (t: T) =>
   t.router({
     createTask: t.procedure
+      .use(authMiddleware(t))
       .input(
         z.object({
           title: z.string().min(5).max(100),
@@ -14,10 +16,6 @@ export const tasksRouter = (t: T) =>
         })
       )
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.session || !ctx.session.user?.id) {
-          throw new TRPCError({ code: 'UNAUTHORIZED' })
-        }
-
         console.log('PROJECT ID: ', input.projectId)
 
         const newTask = await ctx.prisma.task.create({
@@ -25,19 +23,16 @@ export const tasksRouter = (t: T) =>
             title: input.title,
             description: input.description,
             startTime: new Date(),
-            userId: ctx.session.user.id,
+            userId: ctx.user.id,
             projectId: input.projectId
           }
         })
         return newTask
       }),
-    getTasks: t.procedure.query(async ({ ctx }) => {
-      if (!ctx.session) {
-        throw new TRPCError({ code: 'UNAUTHORIZED' })
-      }
+    getTasks: t.procedure.use(authMiddleware(t)).query(async ({ ctx }) => {
       const tasks = await ctx.prisma.task.findMany({
         where: {
-          userId: ctx.session.user?.id
+          userId: ctx.user.id
         },
         include: {
           project: {
@@ -52,19 +47,22 @@ export const tasksRouter = (t: T) =>
       })
       return tasks
     }),
-    getCurrentTask: t.procedure.query(async ({ ctx }) => {
-      const currentTask = await ctx.prisma.task.findFirst({
-        where: {
-          userId: ctx.session?.user?.id,
-          finishTime: null
-        },
-        include: {
-          project: true
-        }
-      })
-      return currentTask
-    }),
+    getCurrentTask: t.procedure
+      .use(authMiddleware(t))
+      .query(async ({ ctx }) => {
+        const currentTask = await ctx.prisma.task.findFirst({
+          where: {
+            userId: ctx.user.id,
+            finishTime: null
+          },
+          include: {
+            project: true
+          }
+        })
+        return currentTask
+      }),
     finishTask: t.procedure
+      .use(authMiddleware(t))
       .input(
         z.object({
           taskId: z.string().cuid(),
@@ -75,7 +73,7 @@ export const tasksRouter = (t: T) =>
         const task = await ctx.prisma.task.findFirst({
           where: {
             id: taskId,
-            userId: ctx.session?.user?.id
+            userId: ctx.user.id
           }
         })
 
@@ -116,17 +114,15 @@ export const tasksRouter = (t: T) =>
         return updatedTask
       }),
     deleteTask: t.procedure
+      .use(authMiddleware(t))
       .input(z.string().cuid())
       .mutation(async ({ ctx, input: taskId }) => {
-        if (!ctx.session || !ctx.session.user || !ctx.session.user.id) {
-          throw new TRPCError({ code: 'UNAUTHORIZED' })
-        }
         const task = await ctx.prisma.task.findUnique({
           where: { id: taskId }
         })
         if (!task) {
           throw new TRPCError({ code: 'NOT_FOUND' })
-        } else if (task.userId !== ctx.session.user.id) {
+        } else if (task.userId !== ctx.user.id) {
           throw new TRPCError({ code: 'FORBIDDEN' })
         }
 
