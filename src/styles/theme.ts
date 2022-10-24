@@ -3,9 +3,7 @@ import { createStyles, MantineThemeOverride } from '@mantine/core'
 export const defaultTheme: MantineThemeOverride = {
   colorScheme: 'dark',
   fontFamily: 'Roboto, sans-serif',
-  headings: {
-    fontFamily: 'Roboto, sans-serif'
-  },
+
   primaryColor: 'cyan',
   colors: {
     red: [
