@@ -10,6 +10,8 @@ interface NotificationBoxProps {
   icon?: ReactNode
 }
 
+export type NotificationOptions = 'success' | 'error' | undefined
+
 export const NotificationBox: FunctionComponent<NotificationBoxProps> = ({
   title,
   type,

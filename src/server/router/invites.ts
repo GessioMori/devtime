@@ -143,6 +143,14 @@ export const invitesRouter = (t: T) =>
           where: {
             receiverId: ctx.user.id,
             status: 'REJECTED'
+          },
+          include: {
+            project: {
+              select: {
+                id: true,
+                title: true
+              }
+            }
           }
         })
 

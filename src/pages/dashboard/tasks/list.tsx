@@ -160,7 +160,6 @@ const ListTasks: NextPageWithLayout = () => {
             horizontalSpacing={'xs'}
             style={{
               display: 'block',
-
               overflowX: 'auto'
             }}
           >
