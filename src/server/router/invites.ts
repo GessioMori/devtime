@@ -1,10 +1,12 @@
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { T } from '.'
+import { authMiddleware } from './middleware'
 
 export const invitesRouter = (t: T) =>
   t.router({
     createInvitation: t.procedure
+      .use(authMiddleware(t))
       .input(
         z.object({
           receiverEmail: z.string(),
@@ -12,13 +14,6 @@ export const invitesRouter = (t: T) =>
         })
       )
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.session || !ctx.session.user?.id) {
-          throw new TRPCError({
-            code: 'UNAUTHORIZED',
-            message: 'User id not provided.'
-          })
-        }
-
         const project = await ctx.prisma.project.findUnique({
           where: {
             id: input.projectId
@@ -30,7 +25,7 @@ export const invitesRouter = (t: T) =>
             code: 'NOT_FOUND',
             message: 'Project not found'
           })
-        } else if (project.ownerId !== ctx.session.user.id) {
+        } else if (project.ownerId !== ctx.user.id) {
           throw new TRPCError({
             code: 'UNAUTHORIZED',
             message: 'Only project owner can make invitations.'
@@ -53,7 +48,7 @@ export const invitesRouter = (t: T) =>
           })
         }
 
-        if (receiver.id === ctx.session.user.id) {
+        if (receiver.id === ctx.user.id) {
           throw new TRPCError({
             code: 'UNAUTHORIZED',
             message: 'You can not invite yourself.'
@@ -81,24 +76,23 @@ export const invitesRouter = (t: T) =>
         return newInvite
       }),
 
-    listReceivedInvitations: t.procedure.query(async ({ ctx }) => {
-      if (!ctx.session || !ctx.session.user?.id) {
-        throw new TRPCError({ code: 'UNAUTHORIZED' })
-      }
+    listReceivedInvitations: t.procedure
+      .use(authMiddleware(t))
+      .query(async ({ ctx }) => {
+        const invitations = await ctx.prisma.projectInvites.findMany({
+          where: {
+            receiverId: ctx.user.id,
+            status: 'PENDING'
+          },
+          include: {
+            project: true
+          }
+        })
 
-      const invitations = await ctx.prisma.projectInvites.findMany({
-        where: {
-          receiverId: ctx.session.user.id,
-          status: 'PENDING'
-        },
-        include: {
-          project: true
-        }
-      })
-
-      return invitations
-    }),
+        return invitations
+      }),
     handleInvitation: t.procedure
+      .use(authMiddleware(t))
       .input(
         z.object({
           projectId: z.string().cuid(),
@@ -106,15 +100,11 @@ export const invitesRouter = (t: T) =>
         })
       )
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.session || !ctx.session.user?.id) {
-          throw new TRPCError({ code: 'UNAUTHORIZED' })
-        }
-
         const invite = await ctx.prisma.projectInvites.findUnique({
           where: {
             receiverId_projectId: {
               projectId: input.projectId,
-              receiverId: ctx.session.user.id
+              receiverId: ctx.user.id
             }
           }
         })
@@ -127,7 +117,7 @@ export const invitesRouter = (t: T) =>
           await ctx.prisma.usersOnProjects.create({
             data: {
               projectId: invite.projectId,
-              userId: ctx.session.user.id
+              userId: ctx.user.id
             }
           })
         }
@@ -145,5 +135,36 @@ export const invitesRouter = (t: T) =>
         })
 
         return updatedInvite
+      }),
+    getDeniedInvites: t.procedure
+      .use(authMiddleware(t))
+      .query(async ({ ctx }) => {
+        const deniedInvites = await ctx.prisma.projectInvites.findMany({
+          where: {
+            receiverId: ctx.user.id,
+            status: 'REJECTED'
+          }
+        })
+
+        return deniedInvites
+      }),
+    cancelDeniedInvite: t.procedure
+      .use(authMiddleware(t))
+      .input(
+        z.object({
+          projectId: z.string().cuid()
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const removedInvite = await ctx.prisma.projectInvites.delete({
+          where: {
+            receiverId_projectId: {
+              receiverId: ctx.user.id,
+              projectId: input.projectId
+            }
+          }
+        })
+
+        return removedInvite
       })
   })

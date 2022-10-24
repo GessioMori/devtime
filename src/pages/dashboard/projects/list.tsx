@@ -69,7 +69,7 @@ const ListProjectsPage: NextPageWithLayout = () => {
   if (projects && projects.length === 0) {
     return (
       <Title order={3} align={'center'}>
-        You aren&apos;t asigned to any project. Create a new one!
+        You aren&apos;t assigned to any project. Create a new one!
       </Title>
     )
   }

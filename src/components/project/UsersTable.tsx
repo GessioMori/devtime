@@ -62,7 +62,7 @@ export const UsersTable: FunctionComponent<UsersTableProps> = ({
           <Text>{user.name}</Text>
         )}
       </td>
-      <td>{format(user.asignedAt, 'dd/MM/yyyy')}</td>
+      <td>{format(user.assignedAt, 'dd/MM/yyyy')}</td>
       <td>
         <Menu position={'bottom-end'}>
           <Menu.Target>

@@ -137,7 +137,7 @@ export const projectsRouter = (t: T) =>
           users: project.users.map((user) => {
             return {
               isProjectOwner: user.isOwner,
-              asignedAt: user.assignedAt,
+              assignedAt: user.assignedAt,
               ...user.user
             }
           })
