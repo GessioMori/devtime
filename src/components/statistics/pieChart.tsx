@@ -1,14 +1,14 @@
-import { ResponsivePie } from '@nivo/pie'
-import { FunctionComponent } from 'react'
+import { ResponsivePie } from '@nivo/pie';
+import { FunctionComponent } from 'react';
 
 interface PieChartProps {
   data: {
-    id: string
-    label: string
-    value: number
-  }[]
-  tooltipName: string
-  tooltipValue: string
+    id: string;
+    label: string;
+    value: number;
+  }[];
+  tooltipName: string;
+  tooltipValue: string;
 }
 
 export const PieChart: FunctionComponent<PieChartProps> = ({
@@ -65,5 +65,5 @@ export const PieChart: FunctionComponent<PieChartProps> = ({
         </div>
       )}
     />
-  )
-}
+  );
+};

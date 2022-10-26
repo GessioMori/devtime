@@ -1,35 +1,20 @@
-import { PieChart } from '@/components/statistics/pieChart'
-import { Container } from '@mantine/core'
-
-const data = [
-  {
-    id: 'elixir',
-    label: 'elixir',
-    value: 434
-  },
-  {
-    id: 'erlang',
-    label: 'erlang',
-    value: 437
-  },
-  {
-    id: 'go',
-    label: 'go',
-    value: 356
-  },
-  {
-    id: 'c',
-    label: 'c',
-    value: 479
-  },
-  {
-    id: 'lisp',
-    label: 'lisp',
-    value: 408
-  }
-]
+import { PieChart } from '@/components/statistics/pieChart';
+import { trpc } from '@/utils/trpc';
+import { Center, Container, Loader } from '@mantine/core';
 
 const TasksStatisticsPage = () => {
+  const { data, isLoading } = trpc.stats.countTasks.useQuery();
+
+  if (isLoading || !data) {
+    return (
+      <Center>
+        <Loader color="cyan" variant="bars" />
+      </Center>
+    );
+  }
+
+  console.log(data);
+
   return (
     <Container sx={{ height: '50vh' }}>
       <PieChart
@@ -38,7 +23,7 @@ const TasksStatisticsPage = () => {
         tooltipValue="Total tasks"
       />
     </Container>
-  )
-}
+  );
+};
 
-export default TasksStatisticsPage
+export default TasksStatisticsPage;
