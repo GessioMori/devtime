@@ -67,12 +67,12 @@ export function UserCard({
             </Box>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Item icon={<IconUserCircle size={14} />}>Account</Menu.Item>
+            <Menu.Item icon={<IconUserCircle size={18} />}>Account</Menu.Item>
             <Link href={'/dashboard/user/settings'}>
-              <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item>
+              <Menu.Item icon={<IconSettings size={18} />}>Settings</Menu.Item>
             </Link>
             <Menu.Item
-              icon={<IconLogout size={14} />}
+              icon={<IconLogout size={18} />}
               onClick={() => signOut()}
               color={'red'}
             >

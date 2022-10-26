@@ -1,5 +1,4 @@
 import { NotificationBox } from '@/components/NotificationBox'
-import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
 import {
   Button,
@@ -11,9 +10,10 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { IconApps } from '@tabler/icons'
+import { NextPage } from 'next'
 import { useState } from 'react'
 
-const CreateProject: NextPageWithLayout = () => {
+const CreateProject: NextPage = () => {
   const [showNotification, setShowNotification] = useState<
     'success' | 'error' | undefined
   >(undefined)

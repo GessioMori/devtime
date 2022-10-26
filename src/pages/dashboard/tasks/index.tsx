@@ -1,12 +1,12 @@
 import { NotificationBox } from '@/components/NotificationBox'
 import { CreateTask } from '@/components/tasks/CreateTask'
 import { CurrentTask } from '@/components/tasks/CurrentTask'
-import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
 import { Container } from '@mantine/core'
+import { NextPage } from 'next'
 import { useState } from 'react'
 
-const Tasks: NextPageWithLayout = () => {
+const Tasks: NextPage = () => {
   const [showNotification, setShowNotification] = useState<
     'success' | 'error' | undefined
   >(undefined)

@@ -86,7 +86,7 @@ export default function Layout({ children, sessionData }: LayoutProps) {
               label="Statistics"
               defaultOpened={true}
             >
-              <Link href={'/dashboard/projects'}>
+              <Link href={'/dashboard/statistics/tasks'}>
                 <NavLink label="Tasks" onClick={() => setOpened((o) => !o)} />
               </Link>
               <Link href={'/dashboard/projects'}>
@@ -129,8 +129,13 @@ export default function Layout({ children, sessionData }: LayoutProps) {
               />
             </MediaQuery>
             <Group spacing={'sm'}>
-              <IconCodeCircle2 size={40} color="#3bc9db" />
-              <Text color={'cyan.2'} size={32} weight={800}>
+              <IconCodeCircle2 size={40} color="#3164cc" />
+              <Text
+                variant="gradient"
+                gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
+                size={32}
+                weight={800}
+              >
                 DevTime
               </Text>
             </Group>

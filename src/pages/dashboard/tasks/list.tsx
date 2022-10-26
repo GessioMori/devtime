@@ -1,4 +1,3 @@
-import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
 import {
   ActionIcon,
@@ -25,10 +24,11 @@ import {
   IconTrash
 } from '@tabler/icons'
 import { format } from 'date-fns'
+import { NextPage } from 'next'
 import Link from 'next/link'
 import { useState } from 'react'
 
-const ListTasks: NextPageWithLayout = () => {
+const ListTasks: NextPage = () => {
   const { data: tasks, isLoading } = trpc.tasks.getTasks.useQuery()
   const deleteTaskMutation = trpc.tasks.deleteTask.useMutation()
 

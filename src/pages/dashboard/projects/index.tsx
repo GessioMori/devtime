@@ -1,6 +1,6 @@
-import { NextPageWithLayout } from '@/pages/_app'
+import { NextPage } from 'next'
 
-const Projects: NextPageWithLayout = () => {
+const Projects: NextPage = () => {
   return <div>Loading+...</div>
 }
 

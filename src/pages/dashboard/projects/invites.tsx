@@ -1,5 +1,4 @@
 import { NotificationBox } from '@/components/NotificationBox'
-import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
 import {
   ActionIcon,
@@ -11,10 +10,11 @@ import {
   Title
 } from '@mantine/core'
 import { IconTerminal2, IconThumbDown, IconThumbUp } from '@tabler/icons'
+import { NextPage } from 'next'
 import Link from 'next/link'
 import { useState } from 'react'
 
-const Invites: NextPageWithLayout = () => {
+const Invites: NextPage = () => {
   const [showNotification, setShowNotification] = useState<
     'success' | 'error' | undefined
   >(undefined)

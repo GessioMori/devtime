@@ -9,15 +9,15 @@ import { AppProps } from 'next/app'
 import Head from 'next/head'
 import './../styles/styles.css'
 
-export type NextPageWithLayout<P = unknown, IP = P> = NextPage<P, IP> & {
+export type NextPagePublic<P = unknown, IP = P> = NextPage<P, IP> & {
   public?: boolean
 }
 
-type AppPropsWithLayoutAndContext = AppProps<{ session: Session }> & {
-  Component: NextPageWithLayout
+type CustomAppProps = AppProps<{ session: Session }> & {
+  Component: NextPagePublic
 }
 
-const App = ({ Component, pageProps }: AppPropsWithLayoutAndContext) => {
+const App = ({ Component, pageProps }: CustomAppProps) => {
   return (
     <>
       <Head>

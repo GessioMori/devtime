@@ -1,7 +1,6 @@
 import { Invitation } from '@/components/project/Invitation'
 import { TasksTable } from '@/components/project/TasksTable'
 import { UsersTable } from '@/components/project/UsersTable'
-import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
 import {
   ActionIcon,
@@ -15,13 +14,11 @@ import {
   Title
 } from '@mantine/core'
 import { IconBrandGithub } from '@tabler/icons'
-import { GetServerSideProps } from 'next'
+import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { z } from 'zod'
 
-const ProjectDetailsPage: NextPageWithLayout<{ projectId: string }> = ({
-  projectId
-}) => {
+const ProjectDetailsPage: NextPage<{ projectId: string }> = ({ projectId }) => {
   const router = useRouter()
   const { data: project, isLoading } = trpc.projects.getProject.useQuery(
     projectId,

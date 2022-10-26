@@ -1,4 +1,3 @@
-import { NextPageWithLayout } from '@/pages/_app'
 import { trpc } from '@/utils/trpc'
 import {
   ActionIcon,
@@ -24,11 +23,12 @@ import {
   IconTerminal2,
   IconTrash
 } from '@tabler/icons'
+import { NextPage } from 'next'
 import Link from 'next/link'
 
 import { useState } from 'react'
 
-const ListProjectsPage: NextPageWithLayout = () => {
+const ListProjectsPage: NextPage = () => {
   const [projectToDelete, setProjectToDelete] = useState<string>('')
   const [projectToLeave, setProjectToLeave] = useState<string>('')
 

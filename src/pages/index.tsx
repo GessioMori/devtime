@@ -3,6 +3,7 @@ import { Button, Group, Space, Stack, Text } from '@mantine/core'
 import { IconBrandGithub, IconCodeCircle2 } from '@tabler/icons'
 import { GetServerSideProps } from 'next'
 import { unstable_getServerSession } from 'next-auth/next'
+import { signIn } from 'next-auth/react'
 import Typewriter from 'typewriter-effect'
 
 const IndexPage = () => {
@@ -64,6 +65,7 @@ const IndexPage = () => {
             color={'dark'}
             leftIcon={<IconBrandGithub />}
             size={'lg'}
+            onClick={() => signIn('github')}
           >
             Login with Github
           </Button>

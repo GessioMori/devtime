@@ -1,6 +1,6 @@
-import { NextPageWithLayout } from '@/pages/_app'
+import { NextPage } from 'next'
 
-const ProjectNotFound: NextPageWithLayout = () => {
+const ProjectNotFound: NextPage = () => {
   return <div>NOT FOUND</div>
 }
 
