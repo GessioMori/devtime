@@ -1,13 +1,13 @@
+import { SelectDate } from '@/components/statistics/selection/SelectDate';
 import { TaskNumberByProject } from '@/components/statistics/tasks/TaskNumberByProject';
 import { Container, Select, Text } from '@mantine/core';
 import { useState } from 'react';
 
-type selectionOpts = string | null;
-
 const TasksStatisticsPage = () => {
-  const [selection, setSelection] = useState<selectionOpts | null>(null);
+  const [selection, setSelection] = useState<string | null>(null);
 
-  console.log(selection);
+  const [month, setMonth] = useState<number>(12);
+  const [year, setYear] = useState<number>(new Date().getFullYear());
 
   return (
     <Container sx={{ height: '80vh' }}>
@@ -22,9 +22,18 @@ const TasksStatisticsPage = () => {
             label: 'Time spent on tasks for each project'
           }
         ]}
+        my={'md'}
+        sx={{ maxWidth: '476px' }}
       />
+      <SelectDate
+        setMonthFn={setMonth}
+        setYearFn={setYear}
+        month={month}
+        year={year}
+      />
+
       {selection === 'taskNumberByProject' ? (
-        <TaskNumberByProject />
+        <TaskNumberByProject month={month} year={year} />
       ) : (
         <Text>No data</Text>
       )}

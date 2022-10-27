@@ -1,8 +1,8 @@
-import { TRPCError } from '@trpc/server'
-import { intervalToDuration } from 'date-fns'
-import { z } from 'zod'
-import { T } from '.'
-import { authMiddleware } from './middleware'
+import { TRPCError } from '@trpc/server';
+import { differenceInSeconds, intervalToDuration } from 'date-fns';
+import { z } from 'zod';
+import { T } from '.';
+import { authMiddleware } from './middleware';
 
 export const tasksRouter = (t: T) =>
   t.router({
@@ -16,7 +16,7 @@ export const tasksRouter = (t: T) =>
         })
       )
       .mutation(async ({ ctx, input }) => {
-        console.log('PROJECT ID: ', input.projectId)
+        const date = new Date();
 
         const newTask = await ctx.prisma.task.create({
           data: {
@@ -24,10 +24,12 @@ export const tasksRouter = (t: T) =>
             description: input.description,
             startTime: new Date(),
             userId: ctx.user.id,
-            projectId: input.projectId
+            projectId: input.projectId,
+            monthNumber: date.getMonth(),
+            yearNumber: date.getFullYear()
           }
-        })
-        return newTask
+        });
+        return newTask;
       }),
     getTasks: t.procedure.use(authMiddleware(t)).query(async ({ ctx }) => {
       const tasks = await ctx.prisma.task.findMany({
@@ -44,8 +46,8 @@ export const tasksRouter = (t: T) =>
         orderBy: {
           startTime: 'desc'
         }
-      })
-      return tasks
+      });
+      return tasks;
     }),
     getCurrentTask: t.procedure
       .use(authMiddleware(t))
@@ -58,8 +60,8 @@ export const tasksRouter = (t: T) =>
           include: {
             project: true
           }
-        })
-        return currentTask
+        });
+        return currentTask;
       }),
     finishTask: t.procedure
       .use(authMiddleware(t))
@@ -75,29 +77,37 @@ export const tasksRouter = (t: T) =>
             id: taskId,
             userId: ctx.user.id
           }
-        })
+        });
 
         if (!task) {
-          throw new TRPCError({ code: 'NOT_FOUND' })
+          throw new TRPCError({ code: 'NOT_FOUND' });
         }
 
-        const finishTime = new Date()
+        const finishTime = new Date();
+
+        const durationInSeconds = differenceInSeconds(
+          finishTime,
+          task.startTime,
+          {
+            roundingMethod: 'floor'
+          }
+        );
 
         const durationObj = intervalToDuration({
           end: finishTime,
           start: task.startTime
-        })
+        });
 
-        let duration: string
+        let duration: string;
 
         if (durationObj.days && durationObj.days > 1) {
-          duration = `${durationObj.days} days`
+          duration = `${durationObj.days} days`;
         } else if (durationObj.days === 1) {
-          duration = '1 day'
+          duration = '1 day';
         } else {
           duration = `${durationObj.hours}:${String(
             durationObj.minutes
-          ).padStart(2, '0')}`
+          ).padStart(2, '0')}`;
         }
 
         const updatedTask = await ctx.prisma.task.update({
@@ -107,11 +117,12 @@ export const tasksRouter = (t: T) =>
           data: {
             finishTime,
             duration,
-            githubCommitUrl
+            githubCommitUrl,
+            durationInSeconds
           }
-        })
+        });
 
-        return updatedTask
+        return updatedTask;
       }),
     deleteTask: t.procedure
       .use(authMiddleware(t))
@@ -119,19 +130,19 @@ export const tasksRouter = (t: T) =>
       .mutation(async ({ ctx, input: taskId }) => {
         const task = await ctx.prisma.task.findUnique({
           where: { id: taskId }
-        })
+        });
         if (!task) {
-          throw new TRPCError({ code: 'NOT_FOUND' })
+          throw new TRPCError({ code: 'NOT_FOUND' });
         } else if (task.userId !== ctx.user.id) {
-          throw new TRPCError({ code: 'FORBIDDEN' })
+          throw new TRPCError({ code: 'FORBIDDEN' });
         }
 
         await ctx.prisma.task.delete({
           where: {
             id: taskId
           }
-        })
+        });
 
-        return true
+        return true;
       })
-  })
+  });

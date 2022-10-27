@@ -1,9 +1,18 @@
+import { AppRouter } from '@/server/router';
 import { trpc } from '@/utils/trpc';
 import { Center, Container, Loader, Title } from '@mantine/core';
+import { inferProcedureInput } from '@trpc/server';
+import { FunctionComponent } from 'react';
 import { PieChart } from '../pieChart';
 
-export const TaskNumberByProject = () => {
-  const { data, isLoading } = trpc.stats.countTasks.useQuery();
+type TaskNumberByProjectProps = inferProcedureInput<
+  AppRouter['stats']['countTasks']
+>;
+
+export const TaskNumberByProject: FunctionComponent<
+  TaskNumberByProjectProps
+> = ({ month, year }) => {
+  const { data, isLoading } = trpc.stats.countTasks.useQuery({ month, year });
 
   if (isLoading) {
     return (
