@@ -20,7 +20,12 @@ export const PieChart: FunctionComponent<PieChartProps> = ({
     <ResponsivePie
       data={data}
       colors={{ scheme: 'set3' }}
-      margin={{ top: 40, right: 0, bottom: 80, left: 80 }}
+      margin={{
+        top: window.innerWidth < 750 ? 0 : 40,
+        right: 0,
+        bottom: 300,
+        left: window.innerWidth < 750 ? 0 : 170
+      }}
       innerRadius={0.5}
       padAngle={0.7}
       cornerRadius={3}
@@ -29,7 +34,7 @@ export const PieChart: FunctionComponent<PieChartProps> = ({
       sortByValue={true}
       legends={[
         {
-          anchor: 'left',
+          anchor: window.innerWidth < 750 ? 'bottom' : 'left',
           direction: 'column',
           justify: false,
           itemsSpacing: 10,
@@ -40,7 +45,8 @@ export const PieChart: FunctionComponent<PieChartProps> = ({
           itemOpacity: 1,
           symbolSize: 18,
           symbolShape: 'square',
-          translateX: -80
+          translateY: window.innerWidth < 750 ? 200 : 0,
+          translateX: window.innerWidth < 750 ? 0 : -150
         }
       ]}
       tooltip={(e) => (
