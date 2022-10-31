@@ -1,7 +1,7 @@
 import { Group, Select } from '@mantine/core';
 import { FunctionComponent } from 'react';
 
-const monthData = [
+export const monthData = [
   {
     value: '12',
     label: 'All months'
@@ -75,21 +75,25 @@ interface SelectDateProps {
   setYearFn: (month: number) => void;
   month: number;
   year: number;
+  showMonth: boolean;
 }
 
 export const SelectDate: FunctionComponent<SelectDateProps> = ({
   setMonthFn,
   setYearFn,
   month,
-  year
+  year,
+  showMonth
 }) => {
   return (
     <Group mb={'md'} position="center">
-      <Select
-        data={monthData}
-        value={month.toString()}
-        onChange={(e) => setMonthFn(Number(e))}
-      />
+      {showMonth && (
+        <Select
+          data={monthData}
+          value={month.toString()}
+          onChange={(e) => setMonthFn(Number(e))}
+        />
+      )}
       <Select
         data={getYearData()}
         value={year.toString()}

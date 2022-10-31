@@ -27,7 +27,7 @@
     "noImplicitAny": true,
     "noUnusedParameters": true,
     "useUnknownInCatchVariables": true,
-    "noUncheckedIndexedAccess": true,
+    "noUncheckedIndexedAccess": false,
     "useDefineForClassFields": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],

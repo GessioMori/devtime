@@ -1,3 +1,4 @@
+import { monthData } from '@/components/statistics/selection/SelectDate';
 import { z } from 'zod';
 import { T } from '.';
 import { authMiddleware } from './middleware';
@@ -16,8 +17,8 @@ export const statisticsRouter = (t: T) =>
         const groupedTasksByProject = await ctx.prisma.task.groupBy({
           where: {
             userId: ctx.user.id,
-            ...(input.month !== 12 ? { monthNumber: input.month } : {}),
-            ...(input.year !== 0 ? { yearNumber: input.year } : {})
+            yearNumber: input.year,
+            ...(input.month !== 12 ? { monthNumber: input.month } : {})
           },
           by: ['projectId'],
           _count: {
@@ -83,8 +84,8 @@ export const statisticsRouter = (t: T) =>
         const groupedTasksByProject = await ctx.prisma.task.groupBy({
           where: {
             userId: ctx.user.id,
-            ...(input.month !== 12 ? { monthNumber: input.month } : {}),
-            ...(input.year !== 0 ? { yearNumber: input.year } : {})
+            yearNumber: input.year,
+            ...(input.month !== 12 ? { monthNumber: input.month } : {})
           },
           by: ['projectId'],
           _sum: {
@@ -141,5 +142,138 @@ export const statisticsRouter = (t: T) =>
         }
 
         return groupedTasks;
+      }),
+    getTasksByMonth: t.procedure
+      .use(authMiddleware(t))
+      .input(
+        z.object({
+          year: z.number()
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        const groupedTasksByMonthAndProject = await ctx.prisma.task.groupBy({
+          where: {
+            userId: ctx.user.id,
+            yearNumber: input.year
+          },
+          by: ['monthNumber', 'projectId'],
+          _count: {
+            _all: true
+          }
+        });
+
+        const projectNamesById: Record<string, string> = {};
+
+        await Promise.all(
+          groupedTasksByMonthAndProject.map(async (task) => {
+            if (task.projectId) {
+              const project = await ctx.prisma.project.findUnique({
+                where: {
+                  id: task.projectId
+                },
+                select: {
+                  title: true
+                }
+              });
+              projectNamesById[task.projectId] = project?.title ?? 'No title';
+            }
+          })
+        );
+
+        type taskByMonthType = {
+          count: number;
+          projectId: string | undefined | null;
+        };
+
+        const numOfTasksByMonth: taskByMonthType[][] = new Array(12).fill([]);
+
+        console.log(numOfTasksByMonth);
+
+        /* for (let i = 0; i < groupedTasksByMonthAndProject.length; i++) {
+          console.log(numOfTasksByMonth[0]);
+          numOfTasksByMonth[1].push({
+            count: groupedTasksByMonthAndProject[i]?._count._all ?? 0,
+            projectId: groupedTasksByMonthAndProject[i]?.projectId
+          });
+        } */
+
+        groupedTasksByMonthAndProject.forEach((groupedTask) => {
+          numOfTasksByMonth[groupedTask.monthNumber] = [
+            ...numOfTasksByMonth[groupedTask.monthNumber],
+            {
+              count: groupedTask._count._all ?? 0,
+              projectId: groupedTask.projectId
+            }
+          ];
+        });
+
+        console.log(numOfTasksByMonth);
+
+        const maxNumberOfProjects = 4;
+
+        for (let i = 0; i < 12; i++) {
+          numOfTasksByMonth[i]?.sort((a, b) => b.count - a.count);
+
+          let otherProjectsCount = 0;
+
+          for (let j = maxNumberOfProjects; j < numOfTasksByMonth.length; j++) {
+            otherProjectsCount += numOfTasksByMonth[i][j]?.count ?? 0;
+          }
+
+          if (numOfTasksByMonth[i].length > maxNumberOfProjects) {
+            numOfTasksByMonth[i].splice(
+              maxNumberOfProjects,
+              numOfTasksByMonth[i].length,
+              {
+                projectId: 'otherProjects',
+                count: otherProjectsCount
+              }
+            );
+          }
+        }
+
+        type tasksByMonthObjType = {
+          [key: string]: string;
+        };
+
+        const mappedTasksByMonth: tasksByMonthObjType[] = [];
+
+        numOfTasksByMonth.forEach((tasksByMonth, index) => {
+          let tasksByMonthObj: tasksByMonthObjType = {
+            month: monthData[index + 1].label
+          };
+
+          for (let i = 0; i < tasksByMonth.length; i++) {
+            const projId = tasksByMonth[i].projectId;
+            if (projId && projId !== 'otherProjects') {
+              tasksByMonthObj = {
+                ...tasksByMonthObj,
+                [projectNamesById[projId]]: tasksByMonth[i].count.toString()
+              };
+            } else if (projId === 'otherProjects') {
+              tasksByMonthObj = {
+                ...tasksByMonthObj,
+                'Other projects': tasksByMonth[i].count.toString()
+              };
+            } else {
+              tasksByMonthObj = {
+                ...tasksByMonthObj,
+                'No project': tasksByMonth[i].count.toString()
+              };
+            }
+          }
+          mappedTasksByMonth.push(tasksByMonthObj);
+        });
+
+        return {
+          values: mappedTasksByMonth.filter(
+            (month) => Object.keys(month).length > 1
+          ),
+          keys: [
+            ...Object.values(projectNamesById),
+            'Other projects',
+            'No project'
+          ]
+        };
       })
   });
