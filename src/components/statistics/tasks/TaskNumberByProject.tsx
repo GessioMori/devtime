@@ -25,14 +25,16 @@ export const TaskNumberByProject: FunctionComponent<
   if (!data) {
     return (
       <Center>
-        <Title order={3}>There is no data for this selection.</Title>
+        <Title order={3} align={'center'} mb={'sm'}>
+          There is no data for this selection.
+        </Title>
       </Center>
     );
   }
 
   return (
     <Container sx={{ height: '100%' }}>
-      <Title order={3} align={'center'}>
+      <Title order={3} align={'center'} mb={'sm'}>
         Number of tasks by project
       </Title>
       <PieChart

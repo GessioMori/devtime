@@ -1,7 +1,7 @@
 import { SelectDate } from '@/components/statistics/selection/SelectDate';
 import { TaskDurationByProject } from '@/components/statistics/tasks/TaskDurationByProject';
 import { TaskNumberByProject } from '@/components/statistics/tasks/TaskNumberByProject';
-import { Container, Select, Text } from '@mantine/core';
+import { Container, Select, Stack, Title } from '@mantine/core';
 import { useState } from 'react';
 
 const TasksStatisticsPage = () => {
@@ -11,34 +11,45 @@ const TasksStatisticsPage = () => {
   const [year, setYear] = useState<number>(new Date().getFullYear());
 
   return (
-    <Container sx={{ height: '80vh' }}>
-      <Select
-        value={selection}
-        placeholder={'Select a chart to show'}
-        onChange={setSelection}
-        data={[
-          { value: 'taskNumberByProject', label: 'Number of tasks by project' },
-          {
-            value: 'taskDurationByProject',
-            label: 'Time spent on tasks for each project'
-          }
-        ]}
-        my={'md'}
-        sx={{ maxWidth: '476px' }}
-      />
-      <SelectDate
-        setMonthFn={setMonth}
-        setYearFn={setYear}
-        month={month}
-        year={year}
-      />
+    <Container
+      sx={{
+        height: '80vh'
+      }}
+    >
+      <Stack align={'center'} spacing={0}>
+        <Select
+          value={selection}
+          placeholder={'Select a chart to show'}
+          onChange={setSelection}
+          data={[
+            {
+              value: 'taskNumberByProject',
+              label: 'Number of tasks by project'
+            },
+            {
+              value: 'taskDurationByProject',
+              label: 'Time spent on tasks for each project'
+            }
+          ]}
+          my={'md'}
+          sx={{ width: 'min(100%, 476px)' }}
+        />
+        <SelectDate
+          setMonthFn={setMonth}
+          setYearFn={setYear}
+          month={month}
+          year={year}
+        />
+      </Stack>
 
       {selection === 'taskNumberByProject' ? (
         <TaskNumberByProject month={month} year={year} />
       ) : selection === 'taskDurationByProject' ? (
         <TaskDurationByProject month={month} year={year} />
       ) : (
-        <Text>No data</Text>
+        <Title order={3} align={'center'} mb={'sm'}>
+          Select above some chart to display.
+        </Title>
       )}
     </Container>
   );

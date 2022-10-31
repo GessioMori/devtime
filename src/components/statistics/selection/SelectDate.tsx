@@ -84,7 +84,7 @@ export const SelectDate: FunctionComponent<SelectDateProps> = ({
   year
 }) => {
   return (
-    <Group mb={'md'}>
+    <Group mb={'md'} position="center">
       <Select
         data={monthData}
         value={month.toString()}

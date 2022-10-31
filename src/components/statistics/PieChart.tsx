@@ -45,7 +45,7 @@ export const PieChart: FunctionComponent<PieChartProps> = ({
           itemOpacity: 1,
           symbolSize: 18,
           symbolShape: 'square',
-          translateY: window.innerWidth < 750 ? 200 : 0,
+          translateY: window.innerWidth < 750 ? 100 : 0,
           translateX: window.innerWidth < 750 ? 0 : -150
         }
       ]}
