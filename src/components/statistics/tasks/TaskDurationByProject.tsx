@@ -5,14 +5,17 @@ import { inferProcedureInput } from '@trpc/server';
 import { FunctionComponent } from 'react';
 import { PieChart } from '../PieChart';
 
-type TaskNumberByProjectProps = inferProcedureInput<
-  AppRouter['stats']['countTasks']
+type TaskDurationByProjectProps = inferProcedureInput<
+  AppRouter['stats']['countTasksTime']
 >;
 
-export const TaskNumberByProject: FunctionComponent<
-  TaskNumberByProjectProps
+export const TaskDurationByProject: FunctionComponent<
+  TaskDurationByProjectProps
 > = ({ month, year }) => {
-  const { data, isLoading } = trpc.stats.countTasks.useQuery({ month, year });
+  const { data, isLoading } = trpc.stats.countTasksTime.useQuery({
+    month,
+    year
+  });
 
   if (isLoading) {
     return (
@@ -33,12 +36,12 @@ export const TaskNumberByProject: FunctionComponent<
   return (
     <Container sx={{ height: '100%' }}>
       <Title order={3} align={'center'}>
-        Number of tasks by project
+        Amount of minutes on tasks by project
       </Title>
       <PieChart
         data={data}
         tooltipName="Project name"
-        tooltipValue="Total tasks"
+        tooltipValue="Total minutes"
       />
     </Container>
   );

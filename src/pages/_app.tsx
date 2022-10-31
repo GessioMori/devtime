@@ -1,21 +1,21 @@
-import { Auth } from '@/components/Auth'
-import { defaultTheme } from '@/styles/theme'
-import { trpc } from '@/utils/trpc'
-import { MantineProvider } from '@mantine/core'
-import { NextPage } from 'next'
-import { Session } from 'next-auth'
-import { SessionProvider } from 'next-auth/react'
-import { AppProps } from 'next/app'
-import Head from 'next/head'
-import './../styles/styles.css'
+import { Auth } from '@/components/Auth';
+import { defaultTheme } from '@/styles/theme';
+import { trpc } from '@/utils/trpc';
+import { MantineProvider } from '@mantine/core';
+import { NextPage } from 'next';
+import { Session } from 'next-auth';
+import { SessionProvider } from 'next-auth/react';
+import { AppProps } from 'next/app';
+import Head from 'next/head';
+import './../styles/styles.css';
 
 export type NextPagePublic<P = unknown, IP = P> = NextPage<P, IP> & {
-  public?: boolean
-}
+  public?: boolean;
+};
 
 type CustomAppProps = AppProps<{ session: Session }> & {
-  Component: NextPagePublic
-}
+  Component: NextPagePublic;
+};
 
 const App = ({ Component, pageProps }: CustomAppProps) => {
   return (
@@ -39,7 +39,7 @@ const App = ({ Component, pageProps }: CustomAppProps) => {
         </MantineProvider>
       </SessionProvider>
     </>
-  )
-}
+  );
+};
 
-export default trpc.withTRPC(App)
+export default trpc.withTRPC(App);

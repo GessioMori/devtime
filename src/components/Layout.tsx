@@ -7,25 +7,27 @@ import {
   Navbar,
   NavLink,
   Text
-} from '@mantine/core'
+} from '@mantine/core';
 import {
   IconChartBar,
   IconCodeCircle2,
   IconListCheck,
   IconTerminal2
-} from '@tabler/icons'
-import { Session } from 'next-auth'
-import Link from 'next/link'
-import { ReactNode, useState } from 'react'
-import { UserCard } from './UserCard'
+} from '@tabler/icons';
+import { Session } from 'next-auth';
+import Link from 'next/link';
+import { PropsWithChildren, useState } from 'react';
+import { UserCard } from './UserCard';
 
 interface LayoutProps {
-  children: ReactNode
-  sessionData: Session | null
+  sessionData: Session | null;
 }
 
-export default function Layout({ children, sessionData }: LayoutProps) {
-  const [opened, setOpened] = useState(false)
+export default function Layout({
+  children,
+  sessionData
+}: PropsWithChildren<LayoutProps>) {
+  const [opened, setOpened] = useState(false);
 
   return (
     <AppShell
@@ -153,5 +155,5 @@ export default function Layout({ children, sessionData }: LayoutProps) {
     >
       {children}
     </AppShell>
-  )
+  );
 }

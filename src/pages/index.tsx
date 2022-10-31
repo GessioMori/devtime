@@ -1,10 +1,7 @@
-import { authOptions } from '@/pages/api/auth/[...nextauth]'
-import { Button, Group, Space, Stack, Text } from '@mantine/core'
-import { IconBrandGithub, IconCodeCircle2 } from '@tabler/icons'
-import { GetServerSideProps } from 'next'
-import { unstable_getServerSession } from 'next-auth/next'
-import { signIn } from 'next-auth/react'
-import Typewriter from 'typewriter-effect'
+import { Button, Group, Space, Stack, Text } from '@mantine/core';
+import { IconBrandGithub, IconCodeCircle2 } from '@tabler/icons';
+import { signIn } from 'next-auth/react';
+import Typewriter from 'typewriter-effect';
 
 const IndexPage = () => {
   return (
@@ -108,35 +105,15 @@ const IndexPage = () => {
               `
                 )
                 .start()
-                .deleteAll(1)
+                .deleteAll(1);
             }}
           />
         </Group>
       </Group>
     </Stack>
-  )
-}
+  );
+};
 
-IndexPage.public = true
+IndexPage.public = true;
 
-export default IndexPage
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions
-  )
-
-  if (session) {
-    return {
-      redirect: {
-        destination: '/dashboard/tasks',
-        permanent: false
-      }
-    }
-  }
-  return {
-    props: {}
-  }
-}
+export default IndexPage;

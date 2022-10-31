@@ -1,4 +1,5 @@
 import { SelectDate } from '@/components/statistics/selection/SelectDate';
+import { TaskDurationByProject } from '@/components/statistics/tasks/TaskDurationByProject';
 import { TaskNumberByProject } from '@/components/statistics/tasks/TaskNumberByProject';
 import { Container, Select, Text } from '@mantine/core';
 import { useState } from 'react';
@@ -18,7 +19,7 @@ const TasksStatisticsPage = () => {
         data={[
           { value: 'taskNumberByProject', label: 'Number of tasks by project' },
           {
-            value: 'taskTimeByProject',
+            value: 'taskDurationByProject',
             label: 'Time spent on tasks for each project'
           }
         ]}
@@ -34,6 +35,8 @@ const TasksStatisticsPage = () => {
 
       {selection === 'taskNumberByProject' ? (
         <TaskNumberByProject month={month} year={year} />
+      ) : selection === 'taskDurationByProject' ? (
+        <TaskDurationByProject month={month} year={year} />
       ) : (
         <Text>No data</Text>
       )}
