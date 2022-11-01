@@ -187,16 +187,6 @@ export const statisticsRouter = (t: T) =>
 
         const numOfTasksByMonth: taskByMonthType[][] = new Array(12).fill([]);
 
-        console.log(numOfTasksByMonth);
-
-        /* for (let i = 0; i < groupedTasksByMonthAndProject.length; i++) {
-          console.log(numOfTasksByMonth[0]);
-          numOfTasksByMonth[1].push({
-            count: groupedTasksByMonthAndProject[i]?._count._all ?? 0,
-            projectId: groupedTasksByMonthAndProject[i]?.projectId
-          });
-        } */
-
         groupedTasksByMonthAndProject.forEach((groupedTask) => {
           numOfTasksByMonth[groupedTask.monthNumber] = [
             ...numOfTasksByMonth[groupedTask.monthNumber],
@@ -206,8 +196,6 @@ export const statisticsRouter = (t: T) =>
             }
           ];
         });
-
-        console.log(numOfTasksByMonth);
 
         const maxNumberOfProjects = 4;
 
@@ -259,6 +247,131 @@ export const statisticsRouter = (t: T) =>
               tasksByMonthObj = {
                 ...tasksByMonthObj,
                 'No project': tasksByMonth[i].count.toString()
+              };
+            }
+          }
+          mappedTasksByMonth.push(tasksByMonthObj);
+        });
+
+        return {
+          values: mappedTasksByMonth.filter(
+            (month) => Object.keys(month).length > 1
+          ),
+          keys: [
+            ...Object.values(projectNamesById),
+            'Other projects',
+            'No project'
+          ]
+        };
+      }),
+    getTasksDurationByMonth: t.procedure
+      .use(authMiddleware(t))
+      .input(
+        z.object({
+          year: z.number()
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        const groupedTasksByMonthAndProject = await ctx.prisma.task.groupBy({
+          where: {
+            userId: ctx.user.id,
+            yearNumber: input.year
+          },
+          by: ['monthNumber', 'projectId'],
+          _sum: {
+            durationInSeconds: true
+          }
+        });
+
+        const projectNamesById: Record<string, string> = {};
+
+        await Promise.all(
+          groupedTasksByMonthAndProject.map(async (task) => {
+            if (task.projectId) {
+              const project = await ctx.prisma.project.findUnique({
+                where: {
+                  id: task.projectId
+                },
+                select: {
+                  title: true
+                }
+              });
+              projectNamesById[task.projectId] = project?.title ?? 'No title';
+            }
+          })
+        );
+
+        type taskByMonthType = {
+          sum: number;
+          projectId: string | undefined | null;
+        };
+
+        const numOfTasksByMonth: taskByMonthType[][] = new Array(12).fill([]);
+
+        groupedTasksByMonthAndProject.forEach((groupedTask) => {
+          numOfTasksByMonth[groupedTask.monthNumber] = [
+            ...numOfTasksByMonth[groupedTask.monthNumber],
+            {
+              sum: groupedTask._sum.durationInSeconds ?? 0,
+              projectId: groupedTask.projectId
+            }
+          ];
+        });
+
+        const maxNumberOfProjects = 4;
+
+        for (let i = 0; i < 12; i++) {
+          numOfTasksByMonth[i]?.sort((a, b) => b.sum - a.sum);
+
+          let otherProjectsCount = 0;
+
+          for (let j = maxNumberOfProjects; j < numOfTasksByMonth.length; j++) {
+            otherProjectsCount += numOfTasksByMonth[i][j]?.sum ?? 0;
+          }
+
+          if (numOfTasksByMonth[i].length > maxNumberOfProjects) {
+            numOfTasksByMonth[i].splice(
+              maxNumberOfProjects,
+              numOfTasksByMonth[i].length,
+              {
+                projectId: 'otherProjects',
+                sum: otherProjectsCount
+              }
+            );
+          }
+        }
+
+        type tasksByMonthObjType = {
+          [key: string]: string;
+        };
+
+        const mappedTasksByMonth: tasksByMonthObjType[] = [];
+
+        numOfTasksByMonth.forEach((tasksByMonth, index) => {
+          let tasksByMonthObj: tasksByMonthObjType = {
+            month: monthData[index + 1].label
+          };
+
+          for (let i = 0; i < tasksByMonth.length; i++) {
+            const projId = tasksByMonth[i].projectId;
+            if (projId && projId !== 'otherProjects') {
+              tasksByMonthObj = {
+                ...tasksByMonthObj,
+                [projectNamesById[projId]]: Math.floor(
+                  tasksByMonth[i].sum / 60
+                ).toString()
+              };
+            } else if (projId === 'otherProjects') {
+              tasksByMonthObj = {
+                ...tasksByMonthObj,
+                'Other projects': Math.floor(
+                  tasksByMonth[i].sum / 60
+                ).toString()
+              };
+            } else {
+              tasksByMonthObj = {
+                ...tasksByMonthObj,
+                'No project': Math.floor(tasksByMonth[i].sum / 60).toString()
               };
             }
           }

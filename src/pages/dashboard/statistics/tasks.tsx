@@ -1,4 +1,5 @@
 import { SelectDate } from '@/components/statistics/selection/SelectDate';
+import { TaskDurationByMonth } from '@/components/statistics/tasks/TaskDurationByMonth';
 import { TaskDurationByProject } from '@/components/statistics/tasks/TaskDurationByProject';
 import { TaskNumberByMonth } from '@/components/statistics/tasks/TaskNumberByMonth';
 import { TaskNumberByProject } from '@/components/statistics/tasks/TaskNumberByProject';
@@ -35,6 +36,10 @@ const TasksStatisticsPage = () => {
             {
               value: 'taskNumberByMonth',
               label: 'Number of tasks by month'
+            },
+            {
+              value: 'taskDurationByMonth',
+              label: 'Time spent on tasks by month'
             }
           ]}
           my={'md'}
@@ -55,6 +60,8 @@ const TasksStatisticsPage = () => {
         <TaskDurationByProject month={month} year={year} />
       ) : selection === 'taskNumberByMonth' ? (
         <TaskNumberByMonth year={year} />
+      ) : selection === 'taskDurationByMonth' ? (
+        <TaskDurationByMonth year={year} />
       ) : (
         <Title order={3} align={'center'} mb={'sm'}>
           Select above some chart to display.
