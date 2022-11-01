@@ -91,7 +91,7 @@ export default function Layout({
               <Link href={'/dashboard/statistics/tasks'}>
                 <NavLink label="Tasks" onClick={() => setOpened((o) => !o)} />
               </Link>
-              <Link href={'/dashboard/projects'}>
+              <Link href={'/dashboard/statistics/projects'}>
                 <NavLink
                   label="Projects"
                   onClick={() => setOpened((o) => !o)}

@@ -1,4 +1,4 @@
-import { trpc } from '@/utils/trpc'
+import { trpc } from '@/utils/trpc';
 import {
   ActionIcon,
   Anchor,
@@ -12,7 +12,7 @@ import {
   Table,
   Text,
   Title
-} from '@mantine/core'
+} from '@mantine/core';
 import {
   IconArrowBack,
   IconBrandGithub,
@@ -22,48 +22,48 @@ import {
   IconPencil,
   IconTerminal2,
   IconTrash
-} from '@tabler/icons'
-import { NextPage } from 'next'
-import Link from 'next/link'
+} from '@tabler/icons';
+import { NextPage } from 'next';
+import Link from 'next/link';
 
-import { useState } from 'react'
+import { useState } from 'react';
 
 const ListProjectsPage: NextPage = () => {
-  const [projectToDelete, setProjectToDelete] = useState<string>('')
-  const [projectToLeave, setProjectToLeave] = useState<string>('')
+  const [projectToDelete, setProjectToDelete] = useState<string>('');
+  const [projectToLeave, setProjectToLeave] = useState<string>('');
 
-  const { data: projects, isLoading } = trpc.projects.listProjects.useQuery()
+  const { data: projects, isLoading } = trpc.projects.listProjects.useQuery();
 
-  const deleteProjectMutation = trpc.projects.deleteProject.useMutation()
+  const deleteProjectMutation = trpc.projects.deleteProject.useMutation();
 
-  const leaveProjectMutation = trpc.projects.leaveProject.useMutation()
+  const leaveProjectMutation = trpc.projects.leaveProject.useMutation();
 
   const deleteProject = async (projectId: string) => {
     await deleteProjectMutation.mutateAsync(projectId).then(() => {
-      setProjectToDelete('')
+      setProjectToDelete('');
       projects?.splice(
         projects.findIndex((project) => projectId === project.id),
         1
-      )
-    })
-  }
+      );
+    });
+  };
 
   const leaveProject = async (projectId: string) => {
     await leaveProjectMutation.mutateAsync({ projectId }).then(() => {
-      setProjectToLeave('')
+      setProjectToLeave('');
       projects?.splice(
         projects.findIndex((project) => projectId === project.id),
         1
-      )
-    })
-  }
+      );
+    });
+  };
 
   if (isLoading) {
     return (
       <Center p={'xl'}>
         <Loader variant="bars" color={'cyan'} />
       </Center>
-    )
+    );
   }
 
   if (projects && projects.length === 0) {
@@ -71,7 +71,7 @@ const ListProjectsPage: NextPage = () => {
       <Title order={3} align={'center'}>
         You aren&apos;t assigned to any project. Create a new one!
       </Title>
-    )
+    );
   }
 
   const rows = projects ? (
@@ -143,7 +143,7 @@ const ListProjectsPage: NextPage = () => {
         </Center>
       </td>
     </tr>
-  )
+  );
 
   return (
     <>
@@ -191,7 +191,7 @@ const ListProjectsPage: NextPage = () => {
       >
         <Stack>
           <Text inline>
-            Are you sure you want to delete &quot;
+            Are you sure you want to leave &quot;
             {projectToLeave &&
               (projects?.find((project) => project.id === projectToLeave)
                 ?.title ||
@@ -240,7 +240,7 @@ const ListProjectsPage: NextPage = () => {
         </Table>
       </Container>
     </>
-  )
-}
+  );
+};
 
-export default ListProjectsPage
+export default ListProjectsPage;

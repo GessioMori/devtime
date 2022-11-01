@@ -1,5 +1,5 @@
-import { NotificationBox } from '@/components/NotificationBox'
-import { trpc } from '@/utils/trpc'
+import { NotificationBox } from '@/components/NotificationBox';
+import { trpc } from '@/utils/trpc';
 import {
   ActionIcon,
   Center,
@@ -8,30 +8,30 @@ import {
   Table,
   Text,
   Title
-} from '@mantine/core'
-import { IconTerminal2, IconThumbDown, IconThumbUp } from '@tabler/icons'
-import { NextPage } from 'next'
-import Link from 'next/link'
-import { useState } from 'react'
+} from '@mantine/core';
+import { IconTerminal2, IconThumbDown, IconThumbUp } from '@tabler/icons';
+import { NextPage } from 'next';
+import Link from 'next/link';
+import { useState } from 'react';
 
 const Invites: NextPage = () => {
   const [showNotification, setShowNotification] = useState<
     'success' | 'error' | undefined
-  >(undefined)
-  const [option, setOption] = useState<'ACCEPTED' | 'REJECTED'>('ACCEPTED')
+  >(undefined);
+  const [option, setOption] = useState<'ACCEPTED' | 'REJECTED'>('ACCEPTED');
 
   const { data: invites, isLoading } =
-    trpc.invites.listReceivedInvitations.useQuery()
+    trpc.invites.listReceivedInvitations.useQuery();
 
   const handleInvitationAnswerMutation =
-    trpc.invites.handleInvitation.useMutation()
+    trpc.invites.handleInvitation.useMutation();
 
   if (isLoading) {
     return (
       <Center p={'xl'}>
         <Loader variant="bars" color={'cyan'} />
       </Center>
-    )
+    );
   }
 
   const handleInvitationAnswer = async (
@@ -41,18 +41,18 @@ const Invites: NextPage = () => {
     await handleInvitationAnswerMutation
       .mutateAsync({ projectId, status })
       .then(() => {
-        setShowNotification('success')
+        setShowNotification('success');
       })
       .catch(() => {
-        setShowNotification('error')
+        setShowNotification('error');
       })
       .finally(() => {
         invites?.splice(
           invites.findIndex((invite) => projectId === invite.projectId),
           1
-        )
-      })
-  }
+        );
+      });
+  };
 
   const rows = invites?.map((invite) => (
     <tr key={invite.projectId}>
@@ -63,8 +63,8 @@ const Invites: NextPage = () => {
         <Group noWrap position="right">
           <ActionIcon
             onClick={() => {
-              setOption('ACCEPTED')
-              handleInvitationAnswer(invite.projectId, 'ACCEPTED')
+              setOption('ACCEPTED');
+              handleInvitationAnswer(invite.projectId, 'ACCEPTED');
             }}
             loading={handleInvitationAnswerMutation.isLoading}
             size="xl"
@@ -75,8 +75,8 @@ const Invites: NextPage = () => {
           </ActionIcon>
           <ActionIcon
             onClick={() => {
-              setOption('REJECTED')
-              handleInvitationAnswer(invite.projectId, 'REJECTED')
+              setOption('REJECTED');
+              handleInvitationAnswer(invite.projectId, 'REJECTED');
             }}
             loading={handleInvitationAnswerMutation.isLoading}
             color="red"
@@ -89,16 +89,14 @@ const Invites: NextPage = () => {
             href={`/dashboard/projects/${invite.projectId}`}
             aria-details="Go to"
           >
-            <a>
-              <ActionIcon color="gray" size="xl" variant="outline">
-                <IconTerminal2 />
-              </ActionIcon>
-            </a>
+            <ActionIcon color="gray" size="xl" variant="outline">
+              <IconTerminal2 />
+            </ActionIcon>
           </Link>
         </Group>
       </td>
     </tr>
-  ))
+  ));
 
   return (
     <>
@@ -158,7 +156,7 @@ const Invites: NextPage = () => {
               : 'Some error occurred, try again!'
           }
           onClose={() => {
-            setShowNotification(undefined)
+            setShowNotification(undefined);
           }}
           icon={
             showNotification === 'success' &&
@@ -167,7 +165,7 @@ const Invites: NextPage = () => {
         />
       )}
     </>
-  )
-}
+  );
+};
 
-export default Invites
+export default Invites;
