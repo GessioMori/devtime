@@ -6,13 +6,13 @@ import { FunctionComponent } from 'react';
 import { PieChart } from '../PieChart';
 
 type TaskDurationByProjectProps = inferProcedureInput<
-  AppRouter['stats']['countTasksTime']
+  AppRouter['tasksStats']['countTasksTime']
 >;
 
 export const TaskDurationByProject: FunctionComponent<
   TaskDurationByProjectProps
 > = ({ month, year }) => {
-  const { data, isLoading } = trpc.stats.countTasksTime.useQuery({
+  const { data, isLoading } = trpc.tasksStats.countTasksTime.useQuery({
     month,
     year
   });
@@ -38,7 +38,7 @@ export const TaskDurationByProject: FunctionComponent<
   return (
     <Container sx={{ height: '100%' }}>
       <Title order={3} align={'center'} mb={'sm'}>
-        Amount of minutes on tasks by project
+        Minutes on tasks by project
       </Title>
       <PieChart
         data={data}

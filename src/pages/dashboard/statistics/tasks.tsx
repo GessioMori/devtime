@@ -50,7 +50,10 @@ const TasksStatisticsPage = () => {
           setYearFn={setYear}
           month={month}
           year={year}
-          showMonth={selection !== 'taskNumberByMonth'}
+          showMonth={
+            selection !== 'taskNumberByMonth' &&
+            selection !== 'taskDurationByMonth'
+          }
         />
       </Stack>
 

@@ -6,13 +6,13 @@ import { FunctionComponent } from 'react';
 import { BarChart } from '../BarChart';
 
 type TaskDurationByMonthProps = inferProcedureInput<
-  AppRouter['stats']['getTasksDurationByMonth']
+  AppRouter['tasksStats']['getTasksDurationByMonth']
 >;
 
 export const TaskDurationByMonth: FunctionComponent<
   TaskDurationByMonthProps
 > = ({ year }) => {
-  const { data, isLoading } = trpc.stats.getTasksDurationByMonth.useQuery({
+  const { data, isLoading } = trpc.tasksStats.getTasksDurationByMonth.useQuery({
     year
   });
 
@@ -37,7 +37,7 @@ export const TaskDurationByMonth: FunctionComponent<
   return (
     <Container sx={{ height: '100%' }}>
       <Title order={3} align={'center'} mb={'sm'}>
-        Amount of minutes on tasks by month
+        Minutes on tasks by month
       </Title>
       <BarChart data={data} tooltipName={'Project'} tooltipDesc={'Minutes'} />
     </Container>

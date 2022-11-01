@@ -6,7 +6,7 @@ import { Context } from './context';
 import { githubRouter } from './github';
 import { invitesRouter } from './invites';
 import { projectsRouter } from './projects';
-import { statisticsRouter } from './statistics';
+import { tasksStatisticsRouter } from './statistics';
 import { tasksRouter } from './tasks';
 
 export const t = initTRPC.context<Context>().create({
@@ -33,7 +33,7 @@ export const appRouter = t.router({
   github: t.mergeRouters(githubRouter(t)),
   projects: t.mergeRouters(projectsRouter(t)),
   invites: t.mergeRouters(invitesRouter(t)),
-  stats: t.mergeRouters(statisticsRouter(t))
+  tasksStats: t.mergeRouters(tasksStatisticsRouter(t))
 });
 
 export type AppRouter = typeof appRouter;

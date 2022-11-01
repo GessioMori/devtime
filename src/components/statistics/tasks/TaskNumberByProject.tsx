@@ -6,13 +6,16 @@ import { FunctionComponent } from 'react';
 import { PieChart } from '../PieChart';
 
 type TaskNumberByProjectProps = inferProcedureInput<
-  AppRouter['stats']['countTasks']
+  AppRouter['tasksStats']['countTasks']
 >;
 
 export const TaskNumberByProject: FunctionComponent<
   TaskNumberByProjectProps
 > = ({ month, year }) => {
-  const { data, isLoading } = trpc.stats.countTasks.useQuery({ month, year });
+  const { data, isLoading } = trpc.tasksStats.countTasks.useQuery({
+    month,
+    year
+  });
 
   if (isLoading) {
     return (

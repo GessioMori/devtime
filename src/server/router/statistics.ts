@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { T } from '.';
 import { authMiddleware } from './middleware';
 
-export const statisticsRouter = (t: T) =>
+export const tasksStatisticsRouter = (t: T) =>
   t.router({
     countTasks: t.procedure
       .use(authMiddleware(t))
