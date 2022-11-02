@@ -62,7 +62,11 @@ const IndexPage = () => {
             color={'dark'}
             leftIcon={<IconBrandGithub />}
             size={'lg'}
-            onClick={() => signIn('github')}
+            onClick={() =>
+              signIn('github', {
+                callbackUrl: `${window.location.origin}/dashboard`
+              })
+            }
           >
             Login with Github
           </Button>

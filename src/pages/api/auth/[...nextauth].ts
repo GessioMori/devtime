@@ -1,9 +1,9 @@
-import { env } from '@/env/server.mjs'
-import { prisma } from '@/server/db/client'
-import { PrismaAdapter } from '@next-auth/prisma-adapter'
-import { NextAuthOptions } from 'next-auth'
-import NextAuth from 'next-auth/next'
-import GithubProvider from 'next-auth/providers/github'
+import { env } from '@/env/server.mjs';
+import { prisma } from '@/server/db/client';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { NextAuthOptions } from 'next-auth';
+import NextAuth from 'next-auth/next';
+import GithubProvider from 'next-auth/providers/github';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -20,20 +20,19 @@ export const authOptions: NextAuthOptions = {
           email: profile.email,
           image: profile.avatar_url,
           githubId: profile.id.toString()
-        }
+        };
       }
     })
   ],
   callbacks: {
     async session({ session, user }) {
-      console.log(`NEW SESSION REQUEST AT: ${new Date().toLocaleTimeString()}`)
       if (session.user) {
-        session.user.id = user.id
-        session.user.githubId = user.githubId
+        session.user.id = user.id;
+        session.user.githubId = user.githubId;
       }
-      return session
+      return session;
     }
   }
-}
+};
 
-export default NextAuth(authOptions)
+export default NextAuth(authOptions);
