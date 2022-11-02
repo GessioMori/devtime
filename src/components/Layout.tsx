@@ -9,8 +9,8 @@ import {
   Text
 } from '@mantine/core';
 import {
+  IconBrandTabler,
   IconChartBar,
-  IconCodeCircle2,
   IconListCheck,
   IconTerminal2
 } from '@tabler/icons';
@@ -131,7 +131,7 @@ export default function Layout({
               />
             </MediaQuery>
             <Group spacing={'sm'}>
-              <IconCodeCircle2 size={40} color="#3164cc" />
+              <IconBrandTabler size={40} color="#3164cc" />
               <Text
                 variant="gradient"
                 gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}

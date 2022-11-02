@@ -1,5 +1,5 @@
 import { Button, Group, Space, Stack, Text } from '@mantine/core';
-import { IconBrandGithub, IconCodeCircle2 } from '@tabler/icons';
+import { IconBrandGithub, IconBrandTabler } from '@tabler/icons';
 import { signIn } from 'next-auth/react';
 import Typewriter from 'typewriter-effect';
 
@@ -12,7 +12,7 @@ const IndexPage = () => {
       spacing="xl"
     >
       <Group spacing={'sm'}>
-        <IconCodeCircle2 size={64} color="#3164cc" />
+        <IconBrandTabler size={64} color="#3164cc" />
         <Text
           variant="gradient"
           gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}

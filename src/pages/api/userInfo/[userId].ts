@@ -1,6 +1,10 @@
 import { prisma } from '@/server/db/client';
+import { generateUserCard } from '@/utils/userCardGenerator';
 import cache from 'memory-cache';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { getScreenshot } from '../_lib/chromium';
+
+const isDev = !process.env.AWS_REGION;
 
 export default async function cachedHandler(
   req: NextApiRequest,
@@ -13,16 +17,15 @@ export default async function cachedHandler(
   }
 
   const cachedResponse = cache.get(userId);
+
   if (cachedResponse) {
-    return res.status(200).json(cachedResponse);
+    return res.setHeader('Content-Type', 'image/png').end(cachedResponse);
   } else {
     const hours = 24;
-    await getUserInfo(userId)
-      .then((data) => {
-        cache.put(userId, data, hours * 1000 * 60 * 60);
-        return res.status(200).json(data);
-      })
-      .catch((err) => res.status(400).json({ message: err.message }));
+    const html = await getUserInfo(userId);
+    const file = await getScreenshot(html, isDev);
+    cache.put(userId, file, hours * 60 * 60);
+    return res.setHeader('Content-Type', 'image/png').end(file);
   }
 }
 
@@ -34,7 +37,7 @@ async function getUserInfo(userId: string) {
   });
 
   if (!user) {
-    throw new Error('here');
+    throw new Error('User not found');
   }
 
   const groupedTasks = await prisma?.task.groupBy({
@@ -72,31 +75,30 @@ async function getUserInfo(userId: string) {
     }
   });
 
-  let mostDedicatedProjectId = '';
-  let mostDedicatedProjectTitle = '';
-  const durationOfCompletedTasks = tasks?._sum.durationInSeconds;
+  let mainProjectId = '';
+  let mainProject = '';
+  const workingTime = tasks?._sum.durationInSeconds ?? 0;
   const numberOfCompletedTasks = tasks?._count._all;
   const numberOfProjects = projects?.length;
 
   if (groupedTasks && projects) {
-    mostDedicatedProjectId =
+    mainProjectId =
       groupedTasks.reduce((prev, curr) =>
         (prev._sum.durationInSeconds ?? 0) > (curr._sum.durationInSeconds ?? 0)
           ? prev
           : curr
       ).projectId ?? '';
-    if (mostDedicatedProjectId) {
+    if (mainProjectId) {
     }
-    mostDedicatedProjectTitle =
-      projects.find((project) => project.projectId === mostDedicatedProjectId)
-        ?.project.title ?? '';
+    mainProject =
+      projects.find((project) => project.projectId === mainProjectId)?.project
+        .title ?? '';
   }
 
-  return {
-    name: user.name,
-    mostDedicatedProjectTitle,
-    durationOfCompletedTasks,
-    numberOfCompletedTasks,
-    numberOfProjects
-  };
+  return generateUserCard({
+    mainProject,
+    projects: numberOfProjects,
+    tasks: numberOfCompletedTasks,
+    workingTimeInSeconds: workingTime
+  });
 }
