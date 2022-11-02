@@ -64,7 +64,7 @@ const IndexPage = () => {
             size={'lg'}
             onClick={() =>
               signIn('github', {
-                callbackUrl: `${window.location.origin}/dashboard`
+                callbackUrl: `${window.location.origin}/dashboard/tasks`
               })
             }
           >
