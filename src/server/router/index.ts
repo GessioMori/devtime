@@ -7,8 +7,8 @@ import { githubRouter } from './github';
 import { invitesRouter } from './invites';
 import { projectsRouter } from './projects';
 import { projectStatisticsRouter } from './projectStats';
-import { tasksStatisticsRouter } from './statistics';
 import { tasksRouter } from './tasks';
+import { tasksStatisticsRouter } from './tasksStats';
 
 export const t = initTRPC.context<Context>().create({
   errorFormatter({ shape, error }) {
