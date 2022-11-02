@@ -1,8 +1,8 @@
 import { prisma } from '@/server/db/client';
+import { getScreenshot } from '@/utils/lib/chromium';
 import { generateUserCard } from '@/utils/userCardGenerator';
 import cache from 'memory-cache';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getScreenshot } from '../_lib/chromium';
 
 const isDev = !process.env.AWS_REGION;
 

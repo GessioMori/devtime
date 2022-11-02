@@ -19,7 +19,7 @@ async function getPage(isDev: boolean): Promise<Page> {
 export async function getScreenshot(
   html: string,
   isDev: boolean
-): Promise<Buffer | string> {
+): Promise<Buffer | string | void> {
   const page = await getPage(isDev);
 
   await page.setViewport({ width: 460, height: 180 });
