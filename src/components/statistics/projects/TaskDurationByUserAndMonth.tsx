@@ -5,19 +5,18 @@ import { inferProcedureInput } from '@trpc/server';
 import { FunctionComponent } from 'react';
 import { BarChart } from '../BarChart';
 
-type TaskNumberByUserAndMonthProps = inferProcedureInput<
-  AppRouter['projectStats']['getTasksByMonthAndUser']
+type TaskDurationByUserAndMonthProps = inferProcedureInput<
+  AppRouter['projectStats']['getTasksDurationByMonthAndUser']
 >;
 
-export const TaskNumberByUserAndMonth: FunctionComponent<
-  TaskNumberByUserAndMonthProps
+export const TaskDurationByUserAndMonth: FunctionComponent<
+  TaskDurationByUserAndMonthProps
 > = ({ year, projectId }) => {
-  const { data, isLoading } = trpc.projectStats.getTasksByMonthAndUser.useQuery(
-    {
+  const { data, isLoading } =
+    trpc.projectStats.getTasksDurationByMonthAndUser.useQuery({
       year,
       projectId
-    }
-  );
+    });
 
   if (isLoading) {
     return (
@@ -42,7 +41,7 @@ export const TaskNumberByUserAndMonth: FunctionComponent<
       <Title order={3} align={'center'} mb={'sm'}>
         Number of completed tasks by month
       </Title>
-      <BarChart data={data} tooltipDesc={'Tasks'} tooltipName={'User'} />
+      <BarChart data={data} tooltipDesc={'Tasks'} tooltipName={'Minutes'} />
     </Container>
   );
 };

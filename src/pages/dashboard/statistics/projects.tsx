@@ -1,5 +1,6 @@
+import { TaskDurationByUserAndMonth } from '@/components/statistics/projects/TaskDurationByUserAndMonth';
 import { TaskDurationByUserAndProject } from '@/components/statistics/projects/TaskDurationByUserAndProject';
-import { TaskDurationByUserAndMonth } from '@/components/statistics/projects/TaskNumberByUserAndMonth';
+import { TaskNumberByUserAndMonth } from '@/components/statistics/projects/TaskNumberByUserAndMonth';
 import { TaskNumberByUserAndProject } from '@/components/statistics/projects/TaskNumberByUserAndProject';
 import { SelectDate } from '@/components/statistics/selection/SelectDate';
 import { trpc } from '@/utils/trpc';
@@ -95,9 +96,9 @@ const ProjectsStatisticsPage = () => {
             projectId={project}
           />
         ) : selection === 'taskNumberByMonth' ? (
-          <TaskDurationByUserAndMonth year={year} projectId={project} />
+          <TaskNumberByUserAndMonth year={year} projectId={project} />
         ) : selection === 'taskDurationByMonth' ? (
-          'taskDurationByMonth'
+          <TaskDurationByUserAndMonth year={year} projectId={project} />
         ) : (
           <Title order={3} align={'center'} mb={'sm'}>
             Select above some chart to display.

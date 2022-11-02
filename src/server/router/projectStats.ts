@@ -260,11 +260,127 @@ export const projectStatisticsRouter = (t: T) =>
           values: mappedTasksByMonth.filter(
             (month) => Object.keys(month).length > 1
           ),
-          keys: [
-            ...Object.values(userNamesById),
-            'Other projects',
-            'No project'
-          ]
+          keys: [...Object.values(userNamesById), 'Other users', 'No user']
+        };
+      }),
+    getTasksDurationByMonthAndUser: t.procedure
+      .use(authMiddleware(t))
+      .input(
+        z.object({
+          projectId: z.string().cuid(),
+          year: z.number()
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        const groupedTasksByMonthAndUser = await ctx.prisma.task.groupBy({
+          where: {
+            projectId: input.projectId,
+            yearNumber: input.year
+          },
+          by: ['monthNumber', 'userId'],
+          _sum: {
+            durationInSeconds: true
+          }
+        });
+
+        const userNamesById: Record<string, string> = {};
+
+        await Promise.all(
+          groupedTasksByMonthAndUser.map(async (task) => {
+            if (task.userId) {
+              const user = await ctx.prisma.user.findUnique({
+                where: {
+                  id: task.userId
+                },
+                select: {
+                  name: true
+                }
+              });
+              userNamesById[task.userId] = user?.name ?? 'No name';
+            }
+          })
+        );
+
+        type taskByMonthType = {
+          sum: number;
+          userId: string | undefined | null;
+        };
+
+        const numOfTasksByMonth: taskByMonthType[][] = new Array(12).fill([]);
+
+        groupedTasksByMonthAndUser.forEach((groupedTask) => {
+          numOfTasksByMonth[groupedTask.monthNumber] = [
+            ...numOfTasksByMonth[groupedTask.monthNumber],
+            {
+              sum: groupedTask._sum.durationInSeconds ?? 0,
+              userId: groupedTask.userId
+            }
+          ];
+        });
+
+        const maxNumberOfUsers = 4;
+
+        for (let i = 0; i < 12; i++) {
+          numOfTasksByMonth[i]?.sort((a, b) => b.sum - a.sum);
+
+          let otherUsersCount = 0;
+
+          for (let j = maxNumberOfUsers; j < numOfTasksByMonth.length; j++) {
+            otherUsersCount += numOfTasksByMonth[i][j]?.sum ?? 0;
+          }
+
+          if (numOfTasksByMonth[i].length > maxNumberOfUsers) {
+            numOfTasksByMonth[i].splice(
+              maxNumberOfUsers,
+              numOfTasksByMonth[i].length,
+              {
+                userId: 'otherUsers',
+                sum: otherUsersCount
+              }
+            );
+          }
+        }
+
+        type tasksByMonthObjType = {
+          [key: string]: string;
+        };
+
+        const mappedTasksByMonth: tasksByMonthObjType[] = [];
+
+        numOfTasksByMonth.forEach((tasksByMonth, index) => {
+          let tasksByMonthObj: tasksByMonthObjType = {
+            month: monthData[index + 1].label
+          };
+
+          for (let i = 0; i < tasksByMonth.length; i++) {
+            const userId = tasksByMonth[i].userId;
+            if (userId && userId !== 'otherUsers') {
+              tasksByMonthObj = {
+                ...tasksByMonthObj,
+                [userNamesById[userId]]: Math.floor(
+                  tasksByMonth[i].sum / 60
+                ).toString()
+              };
+            } else if (userId === 'otherUsers') {
+              tasksByMonthObj = {
+                ...tasksByMonthObj,
+                'Other users': Math.floor(tasksByMonth[i].sum / 60).toString()
+              };
+            } else {
+              tasksByMonthObj = {
+                ...tasksByMonthObj,
+                'No user': Math.floor(tasksByMonth[i].sum / 60).toString()
+              };
+            }
+          }
+          mappedTasksByMonth.push(tasksByMonthObj);
+        });
+
+        return {
+          values: mappedTasksByMonth.filter(
+            (month) => Object.keys(month).length > 1
+          ),
+          keys: [...Object.values(userNamesById), 'Other users', 'No user']
         };
       })
   });
