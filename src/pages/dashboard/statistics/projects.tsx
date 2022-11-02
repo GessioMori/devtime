@@ -1,4 +1,5 @@
 import { TaskDurationByUserAndProject } from '@/components/statistics/projects/TaskDurationByUserAndProject';
+import { TaskDurationByUserAndMonth } from '@/components/statistics/projects/TaskNumberByUserAndMonth';
 import { TaskNumberByUserAndProject } from '@/components/statistics/projects/TaskNumberByUserAndProject';
 import { SelectDate } from '@/components/statistics/selection/SelectDate';
 import { trpc } from '@/utils/trpc';
@@ -94,7 +95,7 @@ const ProjectsStatisticsPage = () => {
             projectId={project}
           />
         ) : selection === 'taskNumberByMonth' ? (
-          'taskNumberByMonth'
+          <TaskDurationByUserAndMonth year={year} projectId={project} />
         ) : selection === 'taskDurationByMonth' ? (
           'taskDurationByMonth'
         ) : (

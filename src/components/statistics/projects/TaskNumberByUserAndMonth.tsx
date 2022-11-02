@@ -3,21 +3,21 @@ import { trpc } from '@/utils/trpc';
 import { Center, Container, Loader, Title } from '@mantine/core';
 import { inferProcedureInput } from '@trpc/server';
 import { FunctionComponent } from 'react';
-import { PieChart } from '../PieChart';
+import { BarChart } from '../BarChart';
 
-type TaskDurationByUserAndProjectProps = inferProcedureInput<
-  AppRouter['projectStats']['countTasksDurationByProject']
+type TaskDurationByUserAndMonthProps = inferProcedureInput<
+  AppRouter['projectStats']['getTasksByMonthAndUser']
 >;
 
-export const TaskDurationByUserAndProject: FunctionComponent<
-  TaskDurationByUserAndProjectProps
-> = ({ month, year, projectId }) => {
-  const { data, isLoading } =
-    trpc.projectStats.countTasksDurationByProject.useQuery({
-      month,
+export const TaskDurationByUserAndMonth: FunctionComponent<
+  TaskDurationByUserAndMonthProps
+> = ({ year, projectId }) => {
+  const { data, isLoading } = trpc.projectStats.getTasksByMonthAndUser.useQuery(
+    {
       year,
       projectId
-    });
+    }
+  );
 
   if (isLoading) {
     return (
@@ -40,9 +40,9 @@ export const TaskDurationByUserAndProject: FunctionComponent<
   return (
     <Container sx={{ height: '100%' }}>
       <Title order={3} align={'center'} mb={'sm'}>
-        Duration of completed tasks by month
+        Number of completed tasks by month
       </Title>
-      <PieChart data={data} tooltipName="User" tooltipValue="Minutes" />
+      <BarChart data={data} tooltipDesc={'Tasks'} tooltipName={'User'} />
     </Container>
   );
 };

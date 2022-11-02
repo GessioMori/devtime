@@ -40,14 +40,11 @@ export const BarChart: FunctionComponent<BarChartProps> = ({
         colors={{ scheme: 'set3' }}
         axisBottom={{
           tickPadding: 5,
-          tickRotation: 0,
           legendPosition: 'middle',
           legendOffset: 32
         }}
         axisLeft={{
-          tickSize: 0,
           tickPadding: 5,
-          tickRotation: 0,
           legendPosition: 'middle',
           legendOffset: -40
         }}
