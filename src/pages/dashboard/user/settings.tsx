@@ -1,9 +1,9 @@
 import {
   NotificationBox,
   NotificationOptions
-} from '@/components/NotificationBox'
-import { NextPageWithLayout } from '@/pages/_app'
-import { trpc } from '@/utils/trpc'
+} from '@/components/NotificationBox';
+
+import { trpc } from '@/utils/trpc';
 import {
   ActionIcon,
   Center,
@@ -12,39 +12,40 @@ import {
   Loader,
   Table,
   Title
-} from '@mantine/core'
-import { IconTrash } from '@tabler/icons'
-import { useState } from 'react'
+} from '@mantine/core';
+import { IconTrash } from '@tabler/icons';
+import { NextPage } from 'next';
+import { useState } from 'react';
 
-const SettingsPage: NextPageWithLayout = () => {
+const SettingsPage: NextPage = () => {
   const [showNotification, setShowNotification] =
-    useState<NotificationOptions>(undefined)
+    useState<NotificationOptions>(undefined);
 
   const { data: deniedInvites, isLoading: isLoadingInvites } =
-    trpc.invites.getDeniedInvites.useQuery()
+    trpc.invites.getDeniedInvites.useQuery();
 
   const cancelDeniedInviteMutation =
-    trpc.invites.cancelDeniedInvite.useMutation()
+    trpc.invites.cancelDeniedInvite.useMutation();
 
   const handleCancelDeniedInvitation = async (projectId: string) => {
     await cancelDeniedInviteMutation
       .mutateAsync({ projectId })
       .then(() => {
-        setShowNotification('success')
+        setShowNotification('success');
         deniedInvites?.splice(
           deniedInvites.findIndex((invite) => projectId === invite.projectId),
           1
-        )
+        );
       })
-      .catch(() => setShowNotification('error'))
-  }
+      .catch(() => setShowNotification('error'));
+  };
 
   if (isLoadingInvites) {
     return (
       <Center p={'xl'}>
         <Loader variant="bars" color={'cyan'} />
       </Center>
-    )
+    );
   }
 
   const rows =
@@ -63,7 +64,7 @@ const SettingsPage: NextPageWithLayout = () => {
           </ActionIcon>
         </td>
       </tr>
-    ))
+    ));
 
   return (
     <>
@@ -77,7 +78,7 @@ const SettingsPage: NextPageWithLayout = () => {
               : 'Some error occurred, try again!'
           }
           onClose={() => {
-            setShowNotification(undefined)
+            setShowNotification(undefined);
           }}
         />
       )}
@@ -113,7 +114,7 @@ const SettingsPage: NextPageWithLayout = () => {
         )}
       </Container>
     </>
-  )
-}
+  );
+};
 
-export default SettingsPage
+export default SettingsPage;
