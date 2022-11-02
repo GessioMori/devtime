@@ -1,9 +1,11 @@
 import { AppRouter } from '@/server/router';
 import { trpc } from '@/utils/trpc';
-import { Center, Container, Loader, Title } from '@mantine/core';
+import { Container, Title } from '@mantine/core';
 import { inferProcedureInput } from '@trpc/server';
 import { FunctionComponent } from 'react';
 import { PieChart } from '../PieChart';
+import { Loading } from '../utils/Loading';
+import { NoData } from '../utils/NoData';
 
 type TaskNumberByProjectProps = inferProcedureInput<
   AppRouter['tasksStats']['countTasks']
@@ -18,21 +20,11 @@ export const TaskNumberByProject: FunctionComponent<
   });
 
   if (isLoading) {
-    return (
-      <Center>
-        <Loader color="cyan" variant="bars" />
-      </Center>
-    );
+    return <Loading />;
   }
 
   if (!data) {
-    return (
-      <Center>
-        <Title order={3} align={'center'} mb={'sm'}>
-          There is no data for this selection.
-        </Title>
-      </Center>
-    );
+    return <NoData />;
   }
 
   return (

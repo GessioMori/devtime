@@ -32,6 +32,7 @@ export const PieChart: FunctionComponent<PieChartProps> = ({
       activeOuterRadiusOffset={8}
       enableArcLinkLabels={false}
       sortByValue={true}
+      arcLabelsSkipAngle={10}
       legends={[
         {
           anchor: window.innerWidth < 750 ? 'bottom' : 'left',
