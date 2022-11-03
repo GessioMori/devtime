@@ -6,23 +6,23 @@ import {
   Text,
   UnstyledButton,
   useMantineTheme
-} from '@mantine/core'
+} from '@mantine/core';
 import {
   IconChevronDown,
   IconChevronRight,
   IconLogout,
   IconSettings,
   IconUserCircle
-} from '@tabler/icons'
-import { signOut } from 'next-auth/react'
-import Link from 'next/link'
+} from '@tabler/icons';
+import { signOut } from 'next-auth/react';
+import Link from 'next/link';
 
 interface UserCardProps {
-  direction: 'right' | 'down'
-  className?: string
-  username: string | null | undefined
-  email: string | null | undefined
-  imageUrl: string | null | undefined
+  direction: 'right' | 'down';
+  className?: string;
+  username: string | null | undefined;
+  email: string | null | undefined;
+  imageUrl: string | null | undefined;
 }
 
 export function UserCard({
@@ -33,7 +33,7 @@ export function UserCard({
   username
 }: UserCardProps) {
   {
-    const theme = useMantineTheme()
+    const theme = useMantineTheme();
     return (
       <Box className={className}>
         <Menu width="target">
@@ -67,7 +67,9 @@ export function UserCard({
             </Box>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Item icon={<IconUserCircle size={18} />}>Account</Menu.Item>
+            <Link href={'/dashboard/user/account'}>
+              <Menu.Item icon={<IconUserCircle size={18} />}>Account</Menu.Item>
+            </Link>
             <Link href={'/dashboard/user/settings'}>
               <Menu.Item icon={<IconSettings size={18} />}>Settings</Menu.Item>
             </Link>
@@ -81,6 +83,6 @@ export function UserCard({
           </Menu.Dropdown>
         </Menu>
       </Box>
-    )
+    );
   }
 }
