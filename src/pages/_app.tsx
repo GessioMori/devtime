@@ -26,6 +26,10 @@ const App = ({ Component, pageProps }: CustomAppProps) => {
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"
         />
+        <link rel="shortcut icon" href="/logo.svg" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/logo.svg" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/logo.svg" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/logo.svg" />
       </Head>
       <SessionProvider session={pageProps.session}>
         <MantineProvider withGlobalStyles withNormalizeCSS theme={defaultTheme}>
