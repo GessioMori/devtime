@@ -31,24 +31,41 @@ export const tasksRouter = (t: T) =>
         });
         return newTask;
       }),
-    getTasks: t.procedure.use(authMiddleware(t)).query(async ({ ctx }) => {
-      const tasks = await ctx.prisma.task.findMany({
-        where: {
-          userId: ctx.user.id
-        },
-        include: {
-          project: {
-            select: {
-              title: true
+    getTasks: t.procedure
+      .use(authMiddleware(t))
+      .input(
+        z.object({
+          limit: z.number().min(1).max(10).nullish(),
+          cursor: z.string().nullish()
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        const limit = input.limit ?? 10;
+        const { cursor } = input;
+        const tasks = await ctx.prisma.task.findMany({
+          take: limit + 1,
+          where: {
+            userId: ctx.user.id
+          },
+          include: {
+            project: {
+              select: {
+                title: true
+              }
             }
+          },
+          cursor: cursor ? { id: cursor } : undefined,
+          orderBy: {
+            id: 'desc'
           }
-        },
-        orderBy: {
-          startTime: 'desc'
+        });
+        let nextCursor: typeof cursor | undefined = undefined;
+        if (tasks.length > limit) {
+          const nextItem = tasks.pop();
+          nextCursor = nextItem?.id;
         }
-      });
-      return tasks;
-    }),
+        return { tasks, nextCursor };
+      }),
     getCurrentTask: t.procedure
       .use(authMiddleware(t))
       .query(async ({ ctx }) => {

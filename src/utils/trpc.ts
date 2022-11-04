@@ -1,14 +1,14 @@
-import type { AppRouter } from '@/server/router/index'
-import { httpBatchLink } from '@trpc/client'
-import { createTRPCNext } from '@trpc/next'
-import superjson from 'superjson'
+import type { AppRouter } from '@/server/router/index';
+import { httpBatchLink } from '@trpc/client';
+import { createTRPCNext } from '@trpc/next';
+import superjson from 'superjson';
 
 function getBaseUrl() {
-  if (typeof window !== 'undefined') return ''
+  if (typeof window !== 'undefined') return '';
 
-  //if (env.VERCEL_URL) return `https://${env.VERCEL_URL}`
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
 
-  return `http://localhost:${process.env.PORT ?? 3000}`
+  return `http://localhost:${process.env.PORT ?? 3000}`;
 }
 
 export const trpc = createTRPCNext<AppRouter>({
@@ -17,7 +17,6 @@ export const trpc = createTRPCNext<AppRouter>({
       queryClientConfig: {
         defaultOptions: {
           queries: {
-            //refetchOnMount: false,
             refetchOnWindowFocus: false,
             refetchOnReconnect: false
           }
@@ -29,17 +28,17 @@ export const trpc = createTRPCNext<AppRouter>({
           url: `${getBaseUrl()}/api/trpc`,
           headers() {
             if (ctx?.req) {
-              const { ...headers } = ctx.req.headers
+              const { ...headers } = ctx.req.headers;
               return {
                 ...headers,
                 'x-ssr': '1'
-              }
+              };
             }
-            return {}
+            return {};
           }
         })
       ]
-    }
+    };
   },
   ssr: true
-})
+});

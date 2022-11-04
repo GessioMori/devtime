@@ -1,60 +1,85 @@
-import { trpc } from '@/utils/trpc'
+import { trpc } from '@/utils/trpc';
 import {
   ActionIcon,
   Anchor,
   Button,
   Center,
   Container,
+  Group,
   Loader,
   Menu,
   Modal,
   Popover,
+  Space,
   Stack,
   Table,
   Text,
   Title
-} from '@mantine/core'
+} from '@mantine/core';
 import {
   IconArrowBack,
+  IconArrowLeft,
+  IconArrowRight,
   IconBrandGithub,
   IconCircleX,
   IconDots,
   IconPencil,
   IconTerminal2,
   IconTrash
-} from '@tabler/icons'
-import { format } from 'date-fns'
-import { NextPage } from 'next'
-import Link from 'next/link'
-import { useState } from 'react'
+} from '@tabler/icons';
+import { format } from 'date-fns';
+import { NextPage } from 'next';
+import Link from 'next/link';
+import { useState } from 'react';
 
 const ListTasks: NextPage = () => {
-  const { data: tasks, isLoading } = trpc.tasks.getTasks.useQuery()
-  const deleteTaskMutation = trpc.tasks.deleteTask.useMutation()
+  const [page, setPage] = useState(0);
+  const {
+    data,
+    isLoading,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    fetchPreviousPage,
+    refetch
+  } = trpc.tasks.getTasks.useInfiniteQuery(
+    {
+      limit: 10
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor
+    }
+  );
 
-  const [taskToDelete, setTaskToDelete] = useState<string>('')
+  const deleteTaskMutation = trpc.tasks.deleteTask.useMutation();
+
+  const [taskToDelete, setTaskToDelete] = useState<string>('');
 
   const deleteTask = async (taskId: string) => {
     await deleteTaskMutation.mutateAsync(taskId).then(() => {
-      setTaskToDelete('')
-      tasks?.splice(
-        tasks.findIndex((task) => taskId === task.id),
+      setTaskToDelete('');
+      data?.pages[page].tasks?.splice(
+        data?.pages[page].tasks.findIndex((task) => taskId === task.id),
         1
-      )
-    })
-  }
+      );
+      if (data?.pages[page].tasks.length === 0) {
+        setPage((page) => page - 1);
+        refetch();
+      }
+    });
+  };
 
   if (isLoading) {
     return (
       <Center>
         <Loader color="cyan" variant="bars" />
       </Center>
-    )
+    );
   }
 
   const rows =
-    tasks &&
-    tasks.map((task) => (
+    data?.pages[page]?.tasks &&
+    data?.pages[page].tasks.map((task) => (
       <tr key={task.id} style={{ whiteSpace: 'nowrap' }}>
         <td style={{ cursor: 'pointer', whiteSpace: 'normal' }}>
           <Popover position={'bottom-start'}>
@@ -111,7 +136,7 @@ const ListTasks: NextPage = () => {
           </Menu>
         </td>
       </tr>
-    ))
+    ));
 
   return (
     <>
@@ -124,8 +149,9 @@ const ListTasks: NextPage = () => {
           <Text inline>
             Are you sure you want to delete &quot;
             {taskToDelete &&
-              (tasks?.filter((project) => project.id === taskToDelete)[0]
-                ?.title ||
+              (data?.pages[page]?.tasks?.filter(
+                (project) => project.id === taskToDelete
+              )[0]?.title ||
                 '')}
             &quot; ?
           </Text>
@@ -153,7 +179,45 @@ const ListTasks: NextPage = () => {
         </Stack>
       </Modal>
       <Container size={960}>
-        {tasks && tasks?.length > 0 ? (
+        {page === 0 &&
+        !hasNextPage &&
+        data?.pages &&
+        data.pages.length < page + 2 ? null : (
+          <Center>
+            <Group spacing={'xl'}>
+              <ActionIcon
+                size={'lg'}
+                onClick={() => {
+                  fetchPreviousPage();
+                  setPage((page) => page - 1);
+                }}
+                disabled={page === 0}
+                variant={'outline'}
+                color={'cyan'}
+              >
+                <IconArrowLeft size={24} />
+              </ActionIcon>
+              <ActionIcon
+                size={'lg'}
+                loading={isFetchingNextPage}
+                onClick={() => {
+                  fetchNextPage();
+                  setPage((page) => page + 1);
+                }}
+                disabled={
+                  !hasNextPage && data?.pages && data.pages.length < page + 2
+                }
+                variant={'outline'}
+                color={'cyan'}
+              >
+                <IconArrowRight size={24} />
+              </ActionIcon>
+            </Group>
+          </Center>
+        )}
+
+        <Space h={'xl'} />
+        {data?.pages[page]?.tasks && data?.pages[page].tasks?.length > 0 ? (
           <Table
             verticalSpacing={'sm'}
             highlightOnHover={true}
@@ -184,6 +248,10 @@ const ListTasks: NextPage = () => {
             </thead>
             <tbody>{rows}</tbody>
           </Table>
+        ) : isFetchingNextPage ? (
+          <Center>
+            <Loader color="cyan" variant="bars" />
+          </Center>
         ) : (
           <Title order={3} align={'center'}>
             You don&apos;t have any completed task. Start a new one!
@@ -191,7 +259,7 @@ const ListTasks: NextPage = () => {
         )}
       </Container>
     </>
-  )
-}
+  );
+};
 
-export default ListTasks
+export default ListTasks;
