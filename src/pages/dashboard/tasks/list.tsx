@@ -43,7 +43,7 @@ const ListTasks: NextPage = () => {
   const [taskToDelete, setTaskToDelete] = useState<string>('');
   const [month, setMonth] = useState<number>(12);
   const [year, setYear] = useState<number>(new Date().getFullYear());
-  const [project, setProject] = useState<string>('allProjects');
+  const [project, setProject] = useState<string | null>('allProjects');
 
   const {
     data: projects,
