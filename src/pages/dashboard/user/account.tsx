@@ -1,5 +1,13 @@
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
-import { Center, Code, Container, Space, Text, Title } from '@mantine/core';
+import {
+  Button,
+  Center,
+  Code,
+  Container,
+  Space,
+  Text,
+  Title
+} from '@mantine/core';
 import {
   GetServerSideProps,
   InferGetServerSidePropsType,
@@ -7,16 +15,29 @@ import {
 } from 'next';
 import { Session, unstable_getServerSession } from 'next-auth';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 type AccountPageProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 
 const AccountPage: NextPage<AccountPageProps> = ({ session }) => {
+  const router = useRouter();
+
+  const reloadImage = async () => {
+    await fetch(
+      `https://api.dotos.tech/devtimeusercard/purge/${session.user?.id}`
+    )
+      .then(() => {
+        router.reload();
+      })
+      .catch((e) => console.error(e));
+  };
+
   return (
     <Container size={960}>
       <Title order={3}>User card</Title>
       <Center m={'md'}>
         <Image
-          src={`https://devtimeimggen.onrender.com/${session.user?.id}`}
+          src={`https://api.dotos.tech/devtimeusercard/card/${session.user?.id}`}
           alt="User card"
           width={306}
           height={120}
@@ -28,8 +49,12 @@ const AccountPage: NextPage<AccountPageProps> = ({ session }) => {
       </Text>
       <Space h={'lg'} />
       <Code block>
-        {`<p align="center"> <img src="https://devtimeimggen.onrender.com/${session.user?.id}"> </p>`}
+        {`<p align="center"> <img src="https://api.dotos.tech/devtimeusercard/card/${session.user?.id}"> </p>`}
       </Code>
+      <Space h={'xl'} />
+      <Center>
+        <Button onClick={reloadImage}>Update user card</Button>
+      </Center>
     </Container>
   );
 };

@@ -6,7 +6,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'devtimeimggen.onrender.com'
+        hostname: 'api.dotos.tech'
       }
     ]
   }
