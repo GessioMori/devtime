@@ -36,7 +36,10 @@ export const tasksRouter = (t: T) =>
       .input(
         z.object({
           limit: z.number().min(1).max(10).nullish(),
-          cursor: z.string().nullish()
+          cursor: z.string().nullish(),
+          month: z.number(),
+          year: z.number(),
+          projectId: z.string().nullish()
         })
       )
       .query(async ({ ctx, input }) => {
@@ -45,7 +48,12 @@ export const tasksRouter = (t: T) =>
         const tasks = await ctx.prisma.task.findMany({
           take: limit + 1,
           where: {
-            userId: ctx.user.id
+            userId: ctx.user.id,
+            yearNumber: input.year,
+            ...(input.month !== 12 ? { monthNumber: input.month } : {}),
+            ...(input.projectId !== 'allProjects' || input.projectId === null
+              ? { projectId: input.projectId }
+              : {})
           },
           include: {
             project: {

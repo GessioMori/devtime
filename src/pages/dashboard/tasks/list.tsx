@@ -1,15 +1,19 @@
+import { SelectDate } from '@/components/statistics/selection/SelectDate';
 import { trpc } from '@/utils/trpc';
 import {
   ActionIcon,
   Anchor,
   Button,
   Center,
+  Collapse,
   Container,
+  Divider,
   Group,
   Loader,
   Menu,
   Modal,
   Popover,
+  Select,
   Space,
   Stack,
   Table,
@@ -25,7 +29,8 @@ import {
   IconDots,
   IconPencil,
   IconTerminal2,
-  IconTrash
+  IconTrash,
+  IconTriangleInverted
 } from '@tabler/icons';
 import { format } from 'date-fns';
 import { NextPage } from 'next';
@@ -34,6 +39,18 @@ import { useState } from 'react';
 
 const ListTasks: NextPage = () => {
   const [page, setPage] = useState(0);
+  const [filterActive, setFilterActive] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<string>('');
+  const [month, setMonth] = useState<number>(12);
+  const [year, setYear] = useState<number>(new Date().getFullYear());
+  const [project, setProject] = useState<string | null>(null);
+
+  const {
+    data: projects,
+    isLoading: isLoadingProjects,
+    refetch: fetchProjects
+  } = trpc.projects.listProjects.useQuery(undefined, { enabled: false });
+
   const {
     data,
     isLoading,
@@ -44,7 +61,10 @@ const ListTasks: NextPage = () => {
     refetch
   } = trpc.tasks.getTasks.useInfiniteQuery(
     {
-      limit: 10
+      limit: 10,
+      month,
+      year,
+      projectId: project
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor
@@ -52,8 +72,6 @@ const ListTasks: NextPage = () => {
   );
 
   const deleteTaskMutation = trpc.tasks.deleteTask.useMutation();
-
-  const [taskToDelete, setTaskToDelete] = useState<string>('');
 
   const deleteTask = async (taskId: string) => {
     await deleteTaskMutation.mutateAsync(taskId).then(() => {
@@ -67,6 +85,25 @@ const ListTasks: NextPage = () => {
         refetch();
       }
     });
+  };
+
+  const getProjectsSelection = () => {
+    if (projects) {
+      const formatedProjects = projects
+        .map((project) => {
+          return {
+            value: project.id,
+            label: project.title
+          };
+        })
+        .sort((a, b) => a.label.localeCompare(b.label));
+
+      formatedProjects.unshift({ value: 'allProjects', label: 'All projects' });
+
+      return formatedProjects;
+    }
+
+    return [];
   };
 
   if (isLoading) {
@@ -179,6 +216,50 @@ const ListTasks: NextPage = () => {
         </Stack>
       </Modal>
       <Container size={960}>
+        {
+          <>
+            <Group
+              sx={{ cursor: 'pointer' }}
+              position={'apart'}
+              align={'center'}
+              onClick={() => {
+                setFilterActive((current) => !current);
+                if (!projects) {
+                  fetchProjects();
+                }
+              }}
+            >
+              <Title order={4}> Set filters </Title>
+              <IconTriangleInverted size={12} />
+            </Group>
+            <Divider />
+            <Collapse in={filterActive}>
+              <Stack align={'center'} spacing={0} py={'md'}>
+                <SelectDate
+                  setMonthFn={setMonth}
+                  setYearFn={setYear}
+                  month={month}
+                  year={year}
+                  showMonth={true}
+                />
+                <Select
+                  searchable
+                  allowDeselect
+                  placeholder={
+                    isLoadingProjects
+                      ? 'Loading your projects...'
+                      : 'Choose a project'
+                  }
+                  onChange={setProject}
+                  value={project}
+                  data={getProjectsSelection()}
+                  sx={{ width: 'min(100%, 476px)' }}
+                />
+              </Stack>
+              <Divider />
+            </Collapse>
+          </>
+        }
         {page === 0 &&
         !hasNextPage &&
         data?.pages &&
@@ -254,7 +335,8 @@ const ListTasks: NextPage = () => {
           </Center>
         ) : (
           <Title order={3} align={'center'}>
-            You don&apos;t have any completed task. Start a new one!
+            You don&apos;t have any completed task for this selection. Start a
+            new one!
           </Title>
         )}
       </Container>
