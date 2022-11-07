@@ -3,8 +3,8 @@ import { trpc } from '@/utils/trpc';
 import { Container, Title } from '@mantine/core';
 import { inferProcedureInput } from '@trpc/server';
 import { FunctionComponent } from 'react';
+import { Loading } from '../../Loading';
 import { PieChart } from '../PieChart';
-import { Loading } from '../utils/Loading';
 import { NoData } from '../utils/NoData';
 
 type TaskDurationByUserAndProjectProps = inferProcedureInput<

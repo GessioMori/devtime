@@ -1,5 +1,5 @@
 import { Group, Select } from '@mantine/core';
-import { FunctionComponent } from 'react';
+import { Dispatch, FunctionComponent, SetStateAction } from 'react';
 
 export const monthData = [
   {
@@ -70,17 +70,17 @@ const getYearData = () => {
   return yearData;
 };
 
-interface SelectDateProps {
-  setMonthFn: (month: number) => void;
-  setYearFn: (month: number) => void;
+export type SelectDateProps = {
+  setMonth: Dispatch<SetStateAction<number>>;
+  setYear: Dispatch<SetStateAction<number>>;
   month: number;
   year: number;
-  showMonth: boolean;
-}
+  showMonth?: boolean;
+};
 
 export const SelectDate: FunctionComponent<SelectDateProps> = ({
-  setMonthFn,
-  setYearFn,
+  setMonth,
+  setYear,
   month,
   year,
   showMonth
@@ -91,13 +91,13 @@ export const SelectDate: FunctionComponent<SelectDateProps> = ({
         <Select
           data={monthData}
           value={month.toString()}
-          onChange={(e) => setMonthFn(Number(e))}
+          onChange={(e) => setMonth(Number(e))}
         />
       )}
       <Select
         data={getYearData()}
         value={year.toString()}
-        onChange={(e) => setYearFn(Number(e))}
+        onChange={(e) => setYear(Number(e))}
       />
     </Group>
   );

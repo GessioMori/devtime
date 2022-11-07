@@ -1,19 +1,18 @@
-import { SelectDate } from '@/components/statistics/selection/SelectDate';
+import { Loading } from '@/components/Loading';
+
+import { TaskFilter } from '@/components/tasks/TaskFilter';
 import { trpc } from '@/utils/trpc';
 import {
   ActionIcon,
   Anchor,
   Button,
   Center,
-  Collapse,
   Container,
-  Divider,
   Group,
   Loader,
   Menu,
   Modal,
   Popover,
-  Select,
   Space,
   Stack,
   Table,
@@ -29,8 +28,7 @@ import {
   IconDots,
   IconPencil,
   IconTerminal2,
-  IconTrash,
-  IconTriangleInverted
+  IconTrash
 } from '@tabler/icons';
 import { format } from 'date-fns';
 import { NextPage } from 'next';
@@ -39,17 +37,10 @@ import { useState } from 'react';
 
 const ListTasks: NextPage = () => {
   const [page, setPage] = useState(0);
-  const [filterActive, setFilterActive] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<string>('');
   const [month, setMonth] = useState<number>(12);
   const [year, setYear] = useState<number>(new Date().getFullYear());
-  const [project, setProject] = useState<string | null>('allProjects');
-
-  const {
-    data: projects,
-    isLoading: isLoadingProjects,
-    refetch: fetchProjects
-  } = trpc.projects.listProjects.useQuery(undefined, { enabled: false });
+  const [projectId, setProjectId] = useState<string | null>('allProjects');
 
   const {
     data,
@@ -64,7 +55,7 @@ const ListTasks: NextPage = () => {
       limit: 10,
       month,
       year,
-      projectId: project
+      projectId
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor
@@ -86,33 +77,6 @@ const ListTasks: NextPage = () => {
       }
     });
   };
-
-  const getProjectsSelection = () => {
-    if (projects) {
-      const formatedProjects = projects
-        .map((project) => {
-          return {
-            value: project.id,
-            label: project.title
-          };
-        })
-        .sort((a, b) => a.label.localeCompare(b.label));
-
-      formatedProjects.unshift({ value: 'allProjects', label: 'All projects' });
-
-      return formatedProjects;
-    }
-
-    return [];
-  };
-
-  if (isLoading) {
-    return (
-      <Center>
-        <Loader color="cyan" variant="bars" />
-      </Center>
-    );
-  }
 
   const rows =
     data?.pages[page]?.tasks &&
@@ -216,54 +180,20 @@ const ListTasks: NextPage = () => {
         </Stack>
       </Modal>
       <Container size={960}>
-        {
-          <>
-            <Group
-              sx={{ cursor: 'pointer' }}
-              position={'apart'}
-              align={'center'}
-              onClick={() => {
-                setFilterActive((current) => !current);
-                if (!projects) {
-                  fetchProjects();
-                }
-              }}
-            >
-              <Title order={4}> Set filters </Title>
-              <IconTriangleInverted size={12} />
-            </Group>
-            <Divider />
-            <Collapse in={filterActive}>
-              <Stack align={'center'} spacing={0} py={'md'}>
-                <SelectDate
-                  setMonthFn={setMonth}
-                  setYearFn={setYear}
-                  month={month}
-                  year={year}
-                  showMonth={true}
-                />
-                <Select
-                  searchable
-                  allowDeselect
-                  placeholder={
-                    isLoadingProjects
-                      ? 'Loading your projects...'
-                      : 'Choose a project'
-                  }
-                  onChange={setProject}
-                  value={project}
-                  data={getProjectsSelection()}
-                  sx={{ width: 'min(100%, 476px)' }}
-                />
-              </Stack>
-              <Divider />
-            </Collapse>
-          </>
-        }
-        {page === 0 &&
-        !hasNextPage &&
-        data?.pages &&
-        data.pages.length < page + 2 ? null : (
+        <TaskFilter
+          month={month}
+          year={year}
+          projectId={projectId}
+          setProjectId={setProjectId}
+          setMonth={setMonth}
+          setYear={setYear}
+        />
+        {isLoading ? (
+          <Loading />
+        ) : page === 0 &&
+          !hasNextPage &&
+          data?.pages &&
+          data.pages.length < page + 2 ? null : (
           <Center>
             <Group spacing={'xl'}>
               <ActionIcon

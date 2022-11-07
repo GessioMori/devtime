@@ -46,7 +46,7 @@ const TasksStatisticsPage = () => {
           sx={{ width: 'min(100%, 476px)' }}
         />
         <SelectDate
-          setMonthFn={setMonth}
+          setMonth={setMonth}
           setYearFn={setYear}
           month={month}
           year={year}
