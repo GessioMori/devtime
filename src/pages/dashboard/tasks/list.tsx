@@ -1,3 +1,4 @@
+import { DeleteModal } from '@/components/DeleteModal';
 import { Loading } from '@/components/Loading';
 
 import { TaskFilter } from '@/components/tasks/TaskFilter';
@@ -5,30 +6,25 @@ import { trpc } from '@/utils/trpc';
 import {
   ActionIcon,
   Anchor,
-  Button,
   Center,
   Container,
   Group,
   Loader,
   Menu,
-  Modal,
   Popover,
   Space,
-  Stack,
   Table,
   Text,
   Title
 } from '@mantine/core';
 import {
-  IconArrowBack,
   IconArrowLeft,
   IconArrowRight,
   IconBrandGithub,
   IconCircleX,
   IconDots,
   IconPencil,
-  IconTerminal2,
-  IconTrash
+  IconTerminal2
 } from '@tabler/icons';
 import { format } from 'date-fns';
 import { NextPage } from 'next';
@@ -37,7 +33,7 @@ import { useState } from 'react';
 
 const ListTasks: NextPage = () => {
   const [page, setPage] = useState(0);
-  const [taskToDelete, setTaskToDelete] = useState<string>('');
+  const [taskIdToDelete, setTaskIdToDelete] = useState<string>('');
   const [month, setMonth] = useState<number>(12);
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [projectId, setProjectId] = useState<string | null>('allProjects');
@@ -66,7 +62,7 @@ const ListTasks: NextPage = () => {
 
   const deleteTask = async (taskId: string) => {
     await deleteTaskMutation.mutateAsync(taskId).then(() => {
-      setTaskToDelete('');
+      setTaskIdToDelete('');
       data?.pages[page].tasks?.splice(
         data?.pages[page].tasks.findIndex((task) => taskId === task.id),
         1
@@ -129,7 +125,7 @@ const ListTasks: NextPage = () => {
               <Menu.Item
                 color={'red.5'}
                 icon={<IconCircleX />}
-                onClick={() => setTaskToDelete(task.id)}
+                onClick={() => setTaskIdToDelete(task.id)}
               >
                 Delete task
               </Menu.Item>
@@ -141,44 +137,13 @@ const ListTasks: NextPage = () => {
 
   return (
     <>
-      <Modal
-        opened={!!taskToDelete}
-        onClose={() => setTaskToDelete('')}
-        withCloseButton={false}
-      >
-        <Stack>
-          <Text inline>
-            Are you sure you want to delete &quot;
-            {taskToDelete &&
-              (data?.pages[page]?.tasks?.filter(
-                (project) => project.id === taskToDelete
-              )[0]?.title ||
-                '')}
-            &quot; ?
-          </Text>
-          <Text color={'dimmed'} inline>
-            (This action can not be undone)
-          </Text>
-          <Stack spacing={'xs'}>
-            <Button
-              color={'red'}
-              fullWidth
-              loading={deleteTaskMutation.status === 'loading'}
-              onClick={() => deleteTask(taskToDelete)}
-              leftIcon={<IconTrash />}
-            >
-              Delete
-            </Button>
-            <Button
-              onClick={() => setTaskToDelete('')}
-              leftIcon={<IconArrowBack />}
-              fullWidth
-            >
-              Cancel
-            </Button>
-          </Stack>
-        </Stack>
-      </Modal>
+      <DeleteModal
+        deleteFn={deleteTask}
+        idToDelete={taskIdToDelete}
+        setIdToDelete={setTaskIdToDelete}
+        title={'TEST'}
+        isLoadingDeletion={deleteTaskMutation.isLoading}
+      />
       <Container size={960}>
         <TaskFilter
           month={month}
