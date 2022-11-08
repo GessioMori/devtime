@@ -31,7 +31,7 @@ export const tasksRouter = (t: T) =>
         });
         return newTask;
       }),
-    getTasks: t.procedure
+    getTasksByUser: t.procedure
       .use(authMiddleware(t))
       .input(
         z.object({
@@ -72,7 +72,67 @@ export const tasksRouter = (t: T) =>
           const nextItem = tasks.pop();
           nextCursor = nextItem?.id;
         }
+
         return { tasks, nextCursor };
+      }),
+    getTasksByProject: t.procedure
+      .use(authMiddleware(t))
+      .input(
+        z.object({
+          limit: z.number().min(1).max(10).nullish(),
+          cursor: z.string().nullish(),
+          month: z.number(),
+          year: z.number(),
+          projectId: z.string().cuid(),
+          userId: z.string().nullish()
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        const limit = input.limit ?? 10;
+        const { cursor } = input;
+        const tasks = await ctx.prisma.task.findMany({
+          take: limit + 1,
+          where: {
+            yearNumber: input.year,
+            projectId: input.projectId,
+            ...(input.month !== 12 ? { monthNumber: input.month } : {}),
+            ...(input.userId !== 'allUsers'
+              ? { userId: input.userId ?? ctx.user.id }
+              : {})
+          },
+          include: {
+            project: {
+              select: {
+                title: true
+              }
+            },
+            user: {
+              select: {
+                name: true
+              }
+            }
+          },
+          cursor: cursor ? { id: cursor } : undefined,
+          orderBy: {
+            id: 'desc'
+          }
+        });
+
+        let nextCursor: typeof cursor | undefined = undefined;
+
+        if (tasks.length > limit) {
+          const nextItem = tasks.pop();
+          nextCursor = nextItem?.id;
+        }
+
+        const mappedTasks = tasks.map((task) => {
+          return {
+            ...task,
+            isTaskOwner: task.userId === ctx.user.id
+          };
+        });
+
+        return { tasks: mappedTasks, nextCursor };
       }),
     getCurrentTask: t.procedure
       .use(authMiddleware(t))

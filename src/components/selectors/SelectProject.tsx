@@ -37,8 +37,6 @@ export const SelectProject: FunctionComponent<SelectProjectProps> = ({
 
   return (
     <Select
-      searchable
-      allowDeselect
       placeholder={
         isLoadingProjects ? 'Loading your projects...' : 'Choose a project'
       }

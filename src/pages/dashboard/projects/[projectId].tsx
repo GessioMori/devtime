@@ -1,51 +1,43 @@
-import { Invitation } from '@/components/project/Invitation'
-import { TasksTable } from '@/components/project/TasksTable'
-import { UsersTable } from '@/components/project/UsersTable'
-import { trpc } from '@/utils/trpc'
+import { Loading } from '@/components/Loading';
+import { Invitation } from '@/components/project/Invitation';
+import { ProjectTasksSection } from '@/components/project/ProjectTasksSection';
+import { UsersTable } from '@/components/project/UsersTable';
+import { trpc } from '@/utils/trpc';
 import {
   ActionIcon,
   Anchor,
-  Center,
   Container,
+  Divider,
   Group,
-  Loader,
   Space,
   Text,
   Title
-} from '@mantine/core'
-import { IconBrandGithub } from '@tabler/icons'
-import { GetServerSideProps, NextPage } from 'next'
-import { useRouter } from 'next/router'
-import { z } from 'zod'
+} from '@mantine/core';
+import { IconBrandGithub } from '@tabler/icons';
+import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 
-const ProjectDetailsPage: NextPage<{ projectId: string }> = ({ projectId }) => {
-  const router = useRouter()
+const ProjectDetailsPage: NextPage = () => {
+  const router = useRouter();
+
   const { data: project, isLoading } = trpc.projects.getProject.useQuery(
-    projectId,
+    typeof router.query.projectId === 'string' ? router.query.projectId : '',
     {
       onError() {
-        router.push('/dashboard/projects/notFound')
+        router.push('/dashboard/projects/notFound');
       },
       retry: false
     }
-  )
+  );
 
   if (isLoading) {
-    return (
-      <Center p={'xl'}>
-        <Loader variant="bars" color={'cyan'} />
-      </Center>
-    )
+    return <Loading />;
   }
 
   return (
     <>
       <Container>
-        <Group
-          position="apart"
-          sx={{ borderBottom: '1px solid #c1c2c5' }}
-          pb={'sm'}
-        >
+        <Group position="apart" pb={'sm'}>
           <Title order={3}>{project?.title}</Title>
           {project?.githubRepoUrl && (
             <Anchor
@@ -64,6 +56,8 @@ const ProjectDetailsPage: NextPage<{ projectId: string }> = ({ projectId }) => {
             </Anchor>
           )}
         </Group>
+        <Divider />
+        <Space h={'md'} />
         {project?.description && (
           <>
             <Space h={'lg'} />
@@ -84,12 +78,8 @@ const ProjectDetailsPage: NextPage<{ projectId: string }> = ({ projectId }) => {
       </Container>
       <Container>
         <Space h={'xl'} />
-        <Title
-          order={4}
-          sx={{ maxWidth: '50%', borderBottom: '1px solid #c1c2c5' }}
-        >
-          Users
-        </Title>
+        <Title order={4}>Users</Title>
+        <Divider />
         <Space h={'md'} />
         {project?.id && project.isProjectOwner && (
           <Invitation projectId={project?.id} />
@@ -100,45 +90,21 @@ const ProjectDetailsPage: NextPage<{ projectId: string }> = ({ projectId }) => {
           users={project?.users}
           projectId={project?.id || ''}
         />
-        {project?.tasks && project?.tasks.length > 0 && (
-          <TasksTable tasks={project.tasks} />
-        )}
+        <Space h={'xl'} />
+        <Title order={4}>Tasks</Title>
+        <Divider />
+        <Space h={'md'} />
+        <ProjectTasksSection
+          projectId={
+            typeof router.query.projectId === 'string'
+              ? router.query.projectId
+              : ''
+          }
+          users={project?.users || []}
+        />
       </Container>
     </>
-  )
-}
+  );
+};
 
-export default ProjectDetailsPage
-
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const projectId =
-    typeof ctx.params?.projectId === 'string' ? ctx.params?.projectId : null
-
-  if (!projectId) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: '/dashboard/projects/notFound'
-      }
-    }
-  }
-
-  const checkId = z.string().cuid()
-
-  const isIdValid = checkId.safeParse(projectId)
-
-  if (!isIdValid.success) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: '/dashboard/projects/notFound'
-      }
-    }
-  }
-
-  return {
-    props: {
-      projectId
-    }
-  }
-}
+export default ProjectDetailsPage;

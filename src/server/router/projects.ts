@@ -1,8 +1,8 @@
-import { prisma } from '@/server/db/client'
-import { TRPCError } from '@trpc/server'
-import { z } from 'zod'
-import { T } from '.'
-import { authMiddleware } from './middleware'
+import { prisma } from '@/server/db/client';
+import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
+import { T } from '.';
+import { authMiddleware } from './middleware';
 
 export const projectsRouter = (t: T) =>
   t.router({
@@ -32,8 +32,8 @@ export const projectsRouter = (t: T) =>
               ]
             }
           }
-        })
-        return newProject
+        });
+        return newProject;
       }),
     listProjects: t.procedure.use(authMiddleware(t)).query(async ({ ctx }) => {
       const allProjects = await ctx.prisma.project.findMany({
@@ -44,16 +44,16 @@ export const projectsRouter = (t: T) =>
             }
           }
         }
-      })
+      });
 
       const mappedProjects = allProjects.map((project) => {
         return {
           ...project,
           isProjectOwner: project.ownerId === ctx.user.id
-        }
-      })
+        };
+      });
 
-      return mappedProjects
+      return mappedProjects;
     }),
     listOwnProjects: t.procedure
       .use(authMiddleware(t))
@@ -62,9 +62,9 @@ export const projectsRouter = (t: T) =>
           where: {
             ownerId: ctx.user.id
           }
-        })
+        });
 
-        return projects
+        return projects;
       }),
     deleteProject: t.procedure
       .use(authMiddleware(t))
@@ -72,20 +72,20 @@ export const projectsRouter = (t: T) =>
       .mutation(async ({ ctx, input: projectId }) => {
         const project = await ctx.prisma.project.findUnique({
           where: { id: projectId }
-        })
+        });
         if (!project) {
-          throw new TRPCError({ code: 'NOT_FOUND' })
+          throw new TRPCError({ code: 'NOT_FOUND' });
         } else if (project.ownerId !== ctx.user.id) {
-          throw new TRPCError({ code: 'FORBIDDEN' })
+          throw new TRPCError({ code: 'FORBIDDEN' });
         }
 
         await ctx.prisma.project.delete({
           where: {
             id: projectId
           }
-        })
+        });
 
-        return true
+        return true;
       }),
     getProject: t.procedure
       .use(authMiddleware(t))
@@ -101,39 +101,26 @@ export const projectsRouter = (t: T) =>
               orderBy: {
                 isOwner: 'desc'
               }
-            },
-            tasks: {
-              orderBy: {
-                id: 'desc'
-              }
             }
           }
-        })
+        });
+
         if (!project) {
-          throw new TRPCError({ code: 'NOT_FOUND' })
+          throw new TRPCError({ code: 'NOT_FOUND' });
         }
 
         const mappedProject = {
           ...project,
-          tasks: project.tasks.map((task) => {
-            return {
-              ...task,
-              taskOwnerName: project.users.find(
-                (user) => user.user.id === task.userId
-              )?.user.name,
-              isTaskOwner: task.userId === ctx.user.id
-            }
-          }),
           isProjectOwner: project.ownerId === ctx.user.id,
           users: project.users.map((user) => {
             return {
               isProjectOwner: user.isOwner,
               assignedAt: user.assignedAt,
               ...user.user
-            }
+            };
           })
-        }
-        return mappedProject
+        };
+        return mappedProject;
       }),
     leaveProject: t.procedure
       .use(authMiddleware(t))
@@ -147,16 +134,16 @@ export const projectsRouter = (t: T) =>
           where: {
             id: input.projectId
           }
-        })
+        });
 
         if (!project) {
-          throw new TRPCError({ code: 'NOT_FOUND' })
+          throw new TRPCError({ code: 'NOT_FOUND' });
         }
         if (project.ownerId === ctx.user.id) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'The owner can not leave a project, delete it instead.'
-          })
+          });
         }
 
         await ctx.prisma.usersOnProjects.delete({
@@ -166,7 +153,7 @@ export const projectsRouter = (t: T) =>
               userId: ctx.user.id
             }
           }
-        })
+        });
 
         await ctx.prisma.projectInvites.delete({
           where: {
@@ -175,7 +162,7 @@ export const projectsRouter = (t: T) =>
               receiverId: ctx.user.id
             }
           }
-        })
+        });
 
         await ctx.prisma.task.updateMany({
           where: {
@@ -185,9 +172,9 @@ export const projectsRouter = (t: T) =>
           data: {
             projectId: null
           }
-        })
+        });
 
-        return true
+        return true;
       }),
     removeUserFromProject: t.procedure
       .use(authMiddleware(t))
@@ -205,20 +192,20 @@ export const projectsRouter = (t: T) =>
           include: {
             users: true
           }
-        })
+        });
 
         if (
           !project ||
           !project.users.some((user) => user.userId === input.userId)
         ) {
-          throw new TRPCError({ code: 'NOT_FOUND' })
+          throw new TRPCError({ code: 'NOT_FOUND' });
         }
 
         if (project.ownerId === input.userId) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'The owner can not leave a project, delete it instead.'
-          })
+          });
         }
 
         await ctx.prisma.usersOnProjects.delete({
@@ -228,7 +215,7 @@ export const projectsRouter = (t: T) =>
               userId: input.userId
             }
           }
-        })
+        });
 
         await ctx.prisma.projectInvites.delete({
           where: {
@@ -237,7 +224,7 @@ export const projectsRouter = (t: T) =>
               receiverId: input.userId
             }
           }
-        })
+        });
 
         await ctx.prisma.task.updateMany({
           where: {
@@ -247,8 +234,8 @@ export const projectsRouter = (t: T) =>
           data: {
             projectId: null
           }
-        })
+        });
 
-        return true
+        return true;
       })
-  })
+  });

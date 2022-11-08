@@ -1,23 +1,32 @@
-import { Loading } from '@/components/Loading';
-
-import { TaskFilter } from '@/components/tasks/TaskFilter';
-import { TasksTable } from '@/components/tasks/TasksTable';
 import { AppRouter } from '@/server/router';
 import { trpc } from '@/utils/trpc';
 import { Button, Center, Container, Space, Title } from '@mantine/core';
 import { IconLoader3 } from '@tabler/icons';
 import { inferProcedureOutput } from '@trpc/server';
-import { NextPage } from 'next';
-import { useState } from 'react';
+import { FunctionComponent, useState } from 'react';
+import { Loading } from '../Loading';
+import { ProjectTaskFilter } from './ProjectTaskFilter';
+import { ProjectTasksTable } from './ProjectTasksTable';
 
-type TaskArrType = inferProcedureOutput<
-  AppRouter['tasks']['getTasksByUser']
+type UsersArrType = inferProcedureOutput<
+  AppRouter['projects']['getProject']
+>['users'];
+
+type ProjectTaskArrType = inferProcedureOutput<
+  AppRouter['tasks']['getTasksByProject']
 >['tasks'];
 
-const ListTasks: NextPage = () => {
+type ProjectTasksSectionProps = {
+  projectId: string;
+  users: UsersArrType;
+};
+
+export const ProjectTasksSection: FunctionComponent<
+  ProjectTasksSectionProps
+> = ({ projectId, users }) => {
   const [month, setMonth] = useState<number>(12);
   const [year, setYear] = useState<number>(new Date().getFullYear());
-  const [projectId, setProjectId] = useState<string | null>('allProjects');
+  const [userId, setUserId] = useState<string | null>('allUsers');
 
   const {
     data,
@@ -26,12 +35,13 @@ const ListTasks: NextPage = () => {
     isFetchingNextPage,
     fetchNextPage,
     refetch
-  } = trpc.tasks.getTasksByUser.useInfiniteQuery(
+  } = trpc.tasks.getTasksByProject.useInfiniteQuery(
     {
       limit: 10,
       month,
       year,
-      projectId
+      projectId,
+      userId
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor
@@ -44,13 +54,17 @@ const ListTasks: NextPage = () => {
 
   return (
     <Container size={960} sx={{ flexDirection: 'column' }}>
-      <TaskFilter
+      <ProjectTaskFilter
         month={month}
         year={year}
-        projectId={projectId}
-        setProjectId={setProjectId}
         setMonth={setMonth}
         setYear={setYear}
+        users={users.map((user) => ({
+          value: user.id,
+          label: user.name ?? 'No username'
+        }))}
+        setUserId={setUserId}
+        userId={userId}
       />
 
       <Space h={'xl'} />
@@ -58,8 +72,8 @@ const ListTasks: NextPage = () => {
       {isLoading ? (
         <Loading />
       ) : data && data.pages[0].tasks.length > 0 ? (
-        <TasksTable
-          tasks={data.pages.reduce<TaskArrType>(
+        <ProjectTasksTable
+          tasks={data.pages.reduce<ProjectTaskArrType>(
             (acc, cur) => [...acc, ...cur.tasks],
             []
           )}
@@ -88,5 +102,3 @@ const ListTasks: NextPage = () => {
     </Container>
   );
 };
-
-export default ListTasks;
