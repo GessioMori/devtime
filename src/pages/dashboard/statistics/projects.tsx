@@ -73,7 +73,7 @@ const ProjectsStatisticsPage = () => {
         />
         <SelectDate
           setMonth={setMonth}
-          setYearFn={setYear}
+          setYear={setYear}
           month={month}
           year={year}
           showMonth={
