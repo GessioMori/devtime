@@ -16,7 +16,9 @@ import {
 } from '@tabler/icons';
 import { Session } from 'next-auth';
 import Link from 'next/link';
-import { PropsWithChildren, useState } from 'react';
+import Router from 'next/router';
+import { PropsWithChildren, useEffect, useState } from 'react';
+import { Loading } from './Loading';
 import { UserCard } from './UserCard';
 
 interface LayoutProps {
@@ -28,6 +30,24 @@ export default function Layout({
   sessionData
 }: PropsWithChildren<LayoutProps>) {
   const [opened, setOpened] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const start = () => {
+      setLoading(true);
+    };
+    const end = () => {
+      setLoading(false);
+    };
+    Router.events.on('routeChangeStart', start);
+    Router.events.on('routeChangeComplete', end);
+    Router.events.on('routeChangeError', end);
+    return () => {
+      Router.events.off('routeChangeStart', start);
+      Router.events.off('routeChangeComplete', end);
+      Router.events.off('routeChangeError', end);
+    };
+  }, []);
 
   return (
     <AppShell
@@ -153,7 +173,7 @@ export default function Layout({
         </Header>
       }
     >
-      {children}
+      {loading ? <Loading /> : children}
     </AppShell>
   );
 }

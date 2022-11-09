@@ -8,7 +8,8 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'api.dotos.tech'
       }
-    ]
+    ],
+    minimumCacheTTL: 0
   }
 };
 
