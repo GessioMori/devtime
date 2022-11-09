@@ -55,6 +55,48 @@ export const projectsRouter = (t: T) =>
 
       return mappedProjects;
     }),
+    listPaginatedProjects: t.procedure
+      .use(authMiddleware(t))
+      .input(
+        z.object({
+          limit: z.number().min(1).max(10).nullish(),
+          cursor: z.string().nullish()
+        })
+      )
+      .query(async ({ input, ctx }) => {
+        const limit = input.limit ?? 10;
+        const { cursor } = input;
+        const allProjects = await ctx.prisma.project.findMany({
+          take: limit + 1,
+          where: {
+            users: {
+              some: {
+                userId: ctx.user.id
+              }
+            }
+          },
+          cursor: cursor ? { id: cursor } : undefined,
+          orderBy: {
+            id: 'desc'
+          }
+        });
+
+        let nextCursor: typeof cursor | undefined = undefined;
+
+        if (allProjects.length > limit) {
+          const nextItem = allProjects.pop();
+          nextCursor = nextItem?.id;
+        }
+
+        const mappedProjects = allProjects.map((project) => {
+          return {
+            ...project,
+            isProjectOwner: project.ownerId === ctx.user.id
+          };
+        });
+
+        return { projects: mappedProjects, nextCursor };
+      }),
     listOwnProjects: t.procedure
       .use(authMiddleware(t))
       .query(async ({ ctx }) => {
