@@ -58,7 +58,8 @@ export const tasksRouter = (t: T) =>
           include: {
             project: {
               select: {
-                title: true
+                title: true,
+                githubRepoUrl: true
               }
             }
           },
@@ -103,7 +104,8 @@ export const tasksRouter = (t: T) =>
           include: {
             project: {
               select: {
-                title: true
+                title: true,
+                githubRepoUrl: true
               }
             },
             user: {
@@ -229,5 +231,41 @@ export const tasksRouter = (t: T) =>
         });
 
         return true;
+      }),
+    editTask: t.procedure
+      .use(authMiddleware(t))
+      .input(
+        z.object({
+          taskId: z.string().cuid(),
+          title: z.string(),
+          description: z.string().nullish(),
+          githubCommitUrl: z.string().nullish()
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const task = await ctx.prisma.task.findUnique({
+          where: {
+            id: input.taskId
+          }
+        });
+
+        if (!task) {
+          throw new TRPCError({ code: 'NOT_FOUND' });
+        } else if (task.userId !== ctx.user.id) {
+          throw new TRPCError({ code: 'UNAUTHORIZED' });
+        }
+
+        const editedTask = await ctx.prisma.task.update({
+          where: {
+            id: task.id
+          },
+          data: {
+            title: input.title,
+            description: input.description,
+            githubCommitUrl: input.githubCommitUrl
+          }
+        });
+
+        return editedTask;
       })
   });

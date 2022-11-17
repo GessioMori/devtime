@@ -21,6 +21,7 @@ import { inferProcedureOutput } from '@trpc/server';
 import { format } from 'date-fns';
 import { FunctionComponent, useState } from 'react';
 import { DeleteModal } from '../DeleteModal';
+import { EditTaskModal } from '../tasks/EditTaskModal';
 
 type ProjectTasksTableProps = {
   tasks: inferProcedureOutput<AppRouter['tasks']['getTasksByProject']>['tasks'];
@@ -32,14 +33,30 @@ export const ProjectTasksTable: FunctionComponent<ProjectTasksTableProps> = ({
   handleRefetch
 }) => {
   const deleteTaskMutation = trpc.tasks.deleteTask.useMutation();
+  const editTaskMutation = trpc.tasks.editTask.useMutation();
 
   const [taskIdToDelete, setTaskIdToDelete] = useState<string>('');
+  const [taskIdToEdit, setTaskIdToEdit] = useState<string>('');
 
   const deleteTask = async (taskId: string) => {
     await deleteTaskMutation.mutateAsync(taskId).then(() => {
       setTaskIdToDelete('');
       handleRefetch();
     });
+  };
+
+  const editTask = async (
+    taskId: string,
+    title: string,
+    description: string | null | undefined,
+    githubCommitUrl: string | null | undefined
+  ) => {
+    await editTaskMutation
+      .mutateAsync({ taskId, title, description, githubCommitUrl })
+      .then(() => {
+        setTaskIdToEdit('');
+        handleRefetch();
+      });
   };
 
   const rows =
@@ -72,7 +89,12 @@ export const ProjectTasksTable: FunctionComponent<ProjectTasksTableProps> = ({
             </Menu.Target>
             <Menu.Dropdown style={{ whiteSpace: 'nowrap' }}>
               {task.isTaskOwner && (
-                <Menu.Item icon={<IconPencil />}>Edit task</Menu.Item>
+                <Menu.Item
+                  icon={<IconPencil />}
+                  onClick={() => setTaskIdToEdit(task.id)}
+                >
+                  Edit task
+                </Menu.Item>
               )}
               <Menu.Item icon={<IconUserCircle />}>
                 Go to user profile
@@ -112,6 +134,30 @@ export const ProjectTasksTable: FunctionComponent<ProjectTasksTableProps> = ({
         setIdToDelete={setTaskIdToDelete}
         title={tasks.find((task) => task.id === taskIdToDelete)?.title || ''}
         isLoadingDeletion={deleteTaskMutation.isLoading}
+      />
+
+      <EditTaskModal
+        editFn={editTask}
+        idToEdit={taskIdToEdit}
+        isLoading={editTaskMutation.isLoading}
+        setIdToEdit={setTaskIdToEdit}
+        task={
+          tasks.find((task) => task.id === taskIdToEdit) || {
+            description: '',
+            title: '',
+            id: '',
+            userId: '',
+            project: null,
+            projectId: null,
+            duration: '',
+            githubCommitUrl: null,
+            startTime: new Date(),
+            finishTime: new Date(),
+            monthNumber: 0,
+            yearNumber: 0,
+            durationInSeconds: 0
+          }
+        }
       />
 
       {tasks.length > 0 ? (

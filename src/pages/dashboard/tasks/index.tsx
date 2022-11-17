@@ -1,35 +1,35 @@
-import { NotificationBox } from '@/components/NotificationBox'
-import { CreateTask } from '@/components/tasks/CreateTask'
-import { CurrentTask } from '@/components/tasks/CurrentTask'
-import { trpc } from '@/utils/trpc'
-import { Container } from '@mantine/core'
-import { NextPage } from 'next'
-import { useState } from 'react'
+import { NotificationBox } from '@/components/NotificationBox';
+import { CreateTask } from '@/components/tasks/CreateTask';
+import { CurrentTask } from '@/components/tasks/CurrentTask';
+import { trpc } from '@/utils/trpc';
+import { Container } from '@mantine/core';
+import { NextPage } from 'next';
+import { useState } from 'react';
 
 const Tasks: NextPage = () => {
   const [showNotification, setShowNotification] = useState<
     'success' | 'error' | undefined
-  >(undefined)
+  >(undefined);
 
   const { data: currentTask, refetch } = trpc.tasks.getCurrentTask.useQuery(
     undefined,
     {
       suspense: true
     }
-  )
+  );
 
   const handleRefetch = async () => {
     refetch()
       .then(() => setShowNotification('success'))
-      .catch(() => setShowNotification('error'))
-  }
+      .catch(() => setShowNotification('error'));
+  };
 
   if (currentTask) {
     return (
       <Container>
         <CurrentTask currentTask={currentTask} handleRefetch={handleRefetch} />
       </Container>
-    )
+    );
   }
 
   return (
@@ -47,12 +47,12 @@ const Tasks: NextPage = () => {
               : 'Some error occurred, try again!'
           }
           onClose={() => {
-            setShowNotification(undefined)
+            setShowNotification(undefined);
           }}
         />
       )}
     </>
-  )
-}
+  );
+};
 
-export default Tasks
+export default Tasks;

@@ -1,25 +1,25 @@
-import { z } from 'zod'
-import { T } from '.'
-import { authMiddleware } from './middleware'
+import { z } from 'zod';
+import { T } from '.';
+import { authMiddleware } from './middleware';
 
 interface Repository {
-  id: string
-  url: string
-  language: string
-  name: string
-  svn_url: string
+  id: string;
+  url: string;
+  language: string;
+  name: string;
+  svn_url: string;
 }
 
 interface Commit {
   commit: {
-    message?: string
+    message?: string;
     author: {
-      date: Date
-      email: string
-      name: string
-    }
-  }
-  html_url: string
+      date: Date;
+      email: string;
+      name: string;
+    };
+  };
+  html_url: string;
 }
 
 export const githubRouter = (t: T) =>
@@ -38,26 +38,26 @@ export const githubRouter = (t: T) =>
                 url: repo.svn_url,
                 language: repo.language,
                 name: repo.name
-              }
+              };
             })
-          )
+          );
 
         return {
           repositories
-        }
+        };
       }),
     getLastCommits: t.procedure
       .input(z.string())
       .query(async ({ input: repoUrl }) => {
         if (repoUrl === '') {
-          return null
+          return null;
         }
-        const repositoryName = repoUrl.split('github.com')[1]
-        const url = `https://api.github.com/repos${repositoryName}/commits?page=1&per_page=10`
-        const commits: Commit[] = await fetch(url).then((res) => res.json())
+        const repositoryName = repoUrl.split('github.com')[1];
+        const url = `https://api.github.com/repos${repositoryName}/commits?page=1&per_page=50`;
+        const commits: Commit[] = await fetch(url).then((res) => res.json());
 
         if (!commits) {
-          return null
+          return null;
         }
 
         const mappedCommits = commits.map((commitData) => {
@@ -67,9 +67,9 @@ export const githubRouter = (t: T) =>
             email: commitData.commit.author.email,
             name: commitData.commit.author.name,
             html_url: commitData.html_url
-          }
-        })
+          };
+        });
 
-        return mappedCommits
+        return mappedCommits;
       })
-  })
+  });
