@@ -13,6 +13,7 @@ import { inferProcedureOutput } from '@trpc/server';
 import Link from 'next/link';
 import { FunctionComponent, useState } from 'react';
 import { DeleteModal } from '../DeleteModal';
+import { EditProjectModal } from './EditProjectModal';
 import { LeaveProjectModal } from './LeaveProjectModal';
 
 type ProjectsTableProps = {
@@ -28,9 +29,11 @@ export const ProjectsTable: FunctionComponent<ProjectsTableProps> = ({
 }) => {
   const [projectIdToDelete, setProjectIdToDelete] = useState<string>('');
   const [projectIdToLeave, setProjectIdToLeave] = useState<string>('');
+  const [projectIdToEdit, setProjectIdToEdit] = useState<string>('');
 
   const deleteProjectMutation = trpc.projects.deleteProject.useMutation();
   const leaveProjectMutation = trpc.projects.leaveProject.useMutation();
+  const editProjectMutation = trpc.projects.editProject.useMutation();
 
   const deleteProject = async (projectId: string) => {
     await deleteProjectMutation.mutateAsync(projectId).then(() => {
@@ -44,6 +47,20 @@ export const ProjectsTable: FunctionComponent<ProjectsTableProps> = ({
       setProjectIdToLeave('');
       handleRefetch();
     });
+  };
+
+  const editProject = async (
+    projectId: string,
+    title: string,
+    description: string | null | undefined,
+    githubRepoUrl: string | null | undefined
+  ) => {
+    await editProjectMutation
+      .mutateAsync({ projectId, title, description, githubRepoUrl })
+      .then(() => {
+        setProjectIdToEdit('');
+        handleRefetch();
+      });
   };
 
   const rows = projects.map((project) => (
@@ -83,7 +100,12 @@ export const ProjectsTable: FunctionComponent<ProjectsTableProps> = ({
             )}
             {project.isProjectOwner ? (
               <>
-                <Menu.Item icon={<IconPencil />}>Edit project</Menu.Item>
+                <Menu.Item
+                  icon={<IconPencil />}
+                  onClick={() => setProjectIdToEdit(project.id)}
+                >
+                  Edit project
+                </Menu.Item>
                 <Menu.Item
                   color={'red.5'}
                   icon={<IconCircleX />}
@@ -128,6 +150,25 @@ export const ProjectsTable: FunctionComponent<ProjectsTableProps> = ({
         title={
           projects.find((project) => project.id === projectIdToLeave)?.title ||
           ''
+        }
+      />
+
+      <EditProjectModal
+        idToEdit={projectIdToEdit}
+        isLoading={editProjectMutation.isLoading}
+        editFn={editProject}
+        setIdToEdit={setProjectIdToEdit}
+        title={
+          projects.find((project) => project.id === projectIdToEdit)?.title ||
+          ''
+        }
+        description={
+          projects.find((project) => project.id === projectIdToEdit)
+            ?.description
+        }
+        githubRepoUrl={
+          projects.find((project) => project.id === projectIdToEdit)
+            ?.githubRepoUrl
         }
       />
 

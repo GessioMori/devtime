@@ -279,5 +279,41 @@ export const projectsRouter = (t: T) =>
         });
 
         return true;
+      }),
+    editProject: t.procedure
+      .use(authMiddleware(t))
+      .input(
+        z.object({
+          projectId: z.string().cuid(),
+          title: z.string(),
+          description: z.string().nullish(),
+          githubRepoUrl: z.string().nullish()
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const project = await ctx.prisma.project.findUnique({
+          where: {
+            id: input.projectId
+          }
+        });
+
+        if (!project) {
+          throw new TRPCError({ code: 'NOT_FOUND' });
+        } else if (project.ownerId !== ctx.user.id) {
+          throw new TRPCError({ code: 'UNAUTHORIZED' });
+        }
+
+        const editedProject = await ctx.prisma.project.update({
+          where: {
+            id: project.id
+          },
+          data: {
+            title: input.title,
+            description: input.description,
+            githubRepoUrl: input.githubRepoUrl
+          }
+        });
+
+        return editedProject;
       })
   });
